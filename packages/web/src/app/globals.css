@@ -38,6 +38,53 @@
   --color-cocreator-dark: #815b5b;
   --color-cocreator-bg: #fff5f2;
 
+  /* OfficeClaw Business Theme */
+  --oc-bg-page: #FAFAFB;
+  --oc-bg-sidebar: #F5F7FB;
+  --oc-bg-surface: #FFFFFF;
+  --oc-bg-surface-soft: #FBFCFE;
+  --oc-bg-surface-muted: #F8FAFC;
+  --oc-bg-surface-subtle: #F7F9FC;
+
+  --oc-text-title: #171B24;
+  --oc-text-heading: #1E2330;
+  --oc-text-body: #1F2937;
+  --oc-text-secondary: #667085;
+  --oc-text-muted: #8F96A3;
+  --oc-text-placeholder: #A0A6B2;
+  --oc-text-primary: var(--oc-text-body);
+
+  --oc-border-default: #E7EBF1;
+  --oc-border-soft: #E8EAF0;
+  --oc-border-subtle: #E8ECF2;
+
+  --oc-radius-xs: 8px;
+  --oc-radius-sm: 10px;
+  --oc-radius-md: 12px;
+  --oc-radius-lg: 14px;
+  --oc-radius-xl: 16px;
+  --oc-radius-xxl: 18px;
+  --oc-radius-shell: 20px;
+  --oc-radius-input: 22px;
+  --oc-radius-pill: 999px;
+
+  --oc-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Semantic aliases */
+  --oc-shell-page-bg: var(--oc-bg-page);
+  --oc-shell-sidebar-bg: var(--oc-bg-sidebar);
+  --oc-card-bg: var(--oc-bg-surface);
+  --oc-input-bg: var(--oc-bg-surface-soft);
+  --oc-header-bg: var(--oc-bg-surface);
+  --oc-footer-bg: var(--oc-bg-surface-soft);
+  --oc-shell-border: var(--oc-border-default);
+  --oc-sidebar-item-hover-bg: var(--oc-bg-surface-soft);
+  --oc-sidebar-item-selected-bg: var(--oc-bg-surface);
+  --oc-surface-bg: var(--oc-bg-surface);
+  --oc-surface-soft-bg: var(--oc-bg-surface-soft);
+  --oc-surface-muted-bg: var(--oc-bg-surface-muted);
+  --oc-surface-subtle-bg: var(--oc-bg-surface-subtle);
+
   /* UI Tokens */
   --bg-app: var(--color-base-white);
   --text-primary: var(--color-base-black);
@@ -45,7 +92,6 @@
   --border-radius-base: 16px;
   --spacing-unit: 8px;
 }
-
 [data-theme="dark"] {
   --bg-app: var(--color-base-black);
   --text-primary: var(--color-base-white);
@@ -57,9 +103,14 @@
 }
 
 body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--oc-font-family);
   color: var(--text-primary);
   background: var(--bg-app);
+}
+
+body[data-theme="business"] {
+  color: var(--oc-text-body);
+  background: var(--oc-shell-page-bg);
 }
 
 /* === Mobile PWA: safe-area insets for notched devices === */
@@ -121,10 +172,10 @@ body {
 /* Token-only layer: components consume these vars, no hardcoded colors */
 [data-theme="werewolf-cute"] {
   /* Backgrounds */
-  --ww-bg-base: #0b1020; /* Moon Indigo — shell background */
-  --ww-bg-card: #2a2340; /* Grape Mist — card/panel surfaces */
-  --ww-bg-surface: #1a1835; /* Deep Grape — chat bubbles, input fields */
-  --ww-bg-topbar: #0d1428; /* Darker Indigo — top bar */
+  --ww-bg-base: #0b1020; /* Moon Indigo —shell background */
+  --ww-bg-card: #2a2340; /* Grape Mist —card/panel surfaces */
+  --ww-bg-surface: #1a1835; /* Deep Grape —chat bubbles, input fields */
+  --ww-bg-topbar: #0d1428; /* Darker Indigo —top bar */
 
   /* Text */
   --ww-text-main: #e2e8f0; /* Soft white */
@@ -132,10 +183,10 @@ body {
   --ww-text-dim: #64748b; /* Dim slate */
 
   /* Accents */
-  --ww-accent-danger: #d45a6a; /* Claw Red — kill/vote/key actions */
-  --ww-accent-cute: #f2b7a8; /* Cat Peach — hover/avatar border/secondary */
-  --ww-accent-success: #8bd7c8; /* Moon Mint — guard/success */
-  --ww-accent-info: #e6c36a; /* Lantern Gold — divine/tips */
+  --ww-accent-danger: #d45a6a; /* Claw Red —kill/vote/key actions */
+  --ww-accent-cute: #f2b7a8; /* Cat Peach —hover/avatar border/secondary */
+  --ww-accent-success: #8bd7c8; /* Moon Mint —guard/success */
+  --ww-accent-info: #e6c36a; /* Lantern Gold —divine/tips */
 
   /* State indicators */
   --ww-state-alive: var(--ww-accent-cute);
@@ -155,11 +206,11 @@ body {
   --ww-faction-village: var(--ww-accent-success);
 
   /* Translucent variants (explicit, no /opacity modifier) */
-  --ww-danger-soft: rgba(212, 90, 106, 0.1); /* Claw Red 10% — wolf row bg */
-  --ww-info-soft: rgba(230, 195, 106, 0.3); /* Lantern Gold 30% — MVP border */
-  --ww-subtle-soft: rgba(242, 183, 168, 0.08); /* Cat Peach 8% — table dividers */
-  --ww-cute-soft: rgba(242, 183, 168, 0.1); /* Cat Peach 10% — selected preset */
-  --ww-base-overlay: rgba(11, 16, 32, 0.9); /* Moon Indigo 90% — modal backdrop */
+  --ww-danger-soft: rgba(212, 90, 106, 0.1); /* Claw Red 10% —wolf row bg */
+  --ww-info-soft: rgba(230, 195, 106, 0.3); /* Lantern Gold 30% —MVP border */
+  --ww-subtle-soft: rgba(242, 183, 168, 0.08); /* Cat Peach 8% —table dividers */
+  --ww-cute-soft: rgba(242, 183, 168, 0.1); /* Cat Peach 10% —selected preset */
+  --ww-base-overlay: rgba(11, 16, 32, 0.9); /* Moon Indigo 90% —modal backdrop */
 
   /* Borders & shadows */
   --ww-border-subtle: rgba(242, 183, 168, 0.15); /* Cat Peach 15% */
@@ -185,6 +236,18 @@ body {
   --ww-bg-topbar: #0a0e1e;
   --ww-accent-cute: #e8a99a; /* Slightly muted peach at night */
   --ww-shadow-glow: rgba(212, 90, 106, 0.35); /* Stronger red glow */
+}
+
+/* Pixel Brawl boundary tokens */
+[data-theme="pixel-brawl"] {
+  --pb-bg-base: #000000;
+  --pb-panel-bg: #1e2430;
+  --pb-border: #3a4658;
+  --pb-text-main: #e8dfc7;
+  --pb-text-muted: #3a4658;
+  --pb-text-title: #f1e28a;
+  --pb-accent-cyan: #00f0ff;
+  --pb-accent-green: #2fa56e;
 }
 
 /* F097: Dark-theme table overrides for CLI output + Thinking bubbles */

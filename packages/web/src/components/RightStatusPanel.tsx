@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { formatCatName, useCatData } from '@/hooks/useCatData';
+import { useTheme } from '@/hooks/useTheme';
 import type { CatInvocationInfo } from '@/stores/chatStore';
 import { useChatStore } from '@/stores/chatStore';
 import { apiFetch } from '@/utils/api-client';
@@ -220,6 +221,8 @@ function parseLogFilename(name: string): { date: string; seq: number } | null {
 }
 
 function RuntimeLogsButton() {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const setRevealPath = useChatStore((s) => s.setWorkspaceRevealPath);
   const setOpenFile = useChatStore((s) => s.setWorkspaceOpenFile);
 
@@ -263,7 +266,13 @@ function RuntimeLogsButton() {
   }, [setRevealPath, setOpenFile]);
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-gray-50/70 p-3">
+    <section
+      className={
+        isBusinessTheme
+          ? 'rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] p-3'
+          : 'rounded-lg border border-gray-200 bg-gray-50/70 p-3'
+      }
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-gray-700">运行日志</h3>
         <button
@@ -288,6 +297,8 @@ export function RightStatusPanel({
   width,
   onClose,
 }: RightStatusPanelProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   // F26: Split into active (working now) vs history (appeared before)
   const { activeCats, historyCats } = useMemo(() => {
     const snapshotCats = Object.entries(catInvocations)
@@ -321,8 +332,13 @@ export function RightStatusPanel({
 
   return (
     <aside
-      className="hidden lg:flex border-l border-cocreator-light bg-white/90 px-4 py-4 flex-col gap-4 overflow-y-auto"
+      className={
+        isBusinessTheme
+          ? 'hidden lg:flex flex-col gap-4 overflow-y-auto border-l border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-4 py-4'
+          : 'hidden lg:flex border-l border-cocreator-light bg-white/90 px-4 py-4 flex-col gap-4 overflow-y-auto'
+      }
       style={{ width: width ?? 288, flexShrink: 0 }}
+      data-testid="right-status-shell"
     >
       <div className="flex items-center justify-between">
         <div>
@@ -347,7 +363,14 @@ export function RightStatusPanel({
       </div>
 
       {/* ── Active cats: currently working ──────────────── */}
-      <section className="rounded-lg border border-gray-200 bg-gray-50/70 p-3">
+      <section
+        className={
+          isBusinessTheme
+            ? 'rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] p-3'
+            : 'rounded-lg border border-gray-200 bg-gray-50/70 p-3'
+        }
+        data-testid="right-status-active-section"
+      >
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-xs font-semibold text-gray-700">{activeCats.length > 0 ? '当前调用' : '猫猫状态'}</h3>
           <button
@@ -386,7 +409,13 @@ export function RightStatusPanel({
 
       {/* ── History cats: appeared before but not in current round ── */}
       {historyCats.length > 0 && (
-        <section className="rounded-lg border border-gray-200 bg-gray-50/70 p-3">
+        <section
+          className={
+            isBusinessTheme
+              ? 'rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] p-3'
+              : 'rounded-lg border border-gray-200 bg-gray-50/70 p-3'
+          }
+        >
           <button
             onClick={() => setHistoryOpen((v) => !v)}
             className="w-full flex items-center justify-between text-xs font-semibold text-gray-500 hover:text-gray-700"
@@ -418,7 +447,13 @@ export function RightStatusPanel({
       )}
 
       {/* ── Message stats (collapsible) ───────────────── */}
-      <section className="rounded-lg border border-gray-200 bg-gray-50/70 p-3">
+      <section
+        className={
+          isBusinessTheme
+            ? 'rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] p-3'
+            : 'rounded-lg border border-gray-200 bg-gray-50/70 p-3'
+        }
+      >
         <h3 className="text-xs font-semibold text-gray-700 mb-2">消息统计</h3>
         <div className="grid grid-cols-2 gap-2 text-xs text-gray-700">
           <div>总数</div>
@@ -438,7 +473,13 @@ export function RightStatusPanel({
 
       <SessionChainPanel threadId={threadId} catInvocations={catInvocations} onViewSession={setViewSessionId} />
 
-      <section className="rounded-lg border border-gray-200 bg-gray-50/70 p-3">
+      <section
+        className={
+          isBusinessTheme
+            ? 'rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] p-3'
+            : 'rounded-lg border border-gray-200 bg-gray-50/70 p-3'
+        }
+      >
         <h3 className="text-xs font-semibold text-gray-700 mb-2">对话信息</h3>
         <div className="text-xs text-gray-500 space-y-2">
           <div>

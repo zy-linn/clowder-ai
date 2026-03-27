@@ -12,6 +12,16 @@ const mocks = vi.hoisted(() => ({
   updateSignalArticle: vi.fn(),
 }));
 
+vi.mock('@/hooks/useTheme', () => ({
+  useTheme: () => ({
+    theme: 'business',
+    config: {},
+    setTheme: vi.fn(),
+    toggleTheme: vi.fn(),
+    isLoaded: true,
+  }),
+}));
+
 vi.mock('@/utils/signals-api', () => ({
   fetchSignalArticle: (...args: unknown[]) => mocks.fetchSignalArticle(...args),
   fetchSignalStats: (...args: unknown[]) => mocks.fetchSignalStats(...args),
@@ -103,6 +113,26 @@ describe('SignalInboxView', () => {
   afterAll(() => {
     delete (globalThis as { React?: typeof React }).React;
     delete (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT;
+  });
+
+  it('renders OfficeClaw shell wrappers in business theme', async () => {
+    await act(async () => {
+      root.render(React.createElement(SignalInboxView));
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const shell = container.querySelector('[data-testid="signal-inbox-shell"]');
+    const header = container.querySelector('[data-testid="signal-inbox-header"]');
+    const filters = container.querySelector('[data-testid="signal-inbox-filters"]');
+
+    expect(shell?.className ?? '').toContain('bg-[var(--oc-bg-page)]');
+    expect(header?.className ?? '').toContain('bg-[var(--oc-bg-surface)]');
+    expect(filters?.className ?? '').toContain('border-[var(--oc-border-default)]');
   });
 
   it('forwards active status/source/tier filters to server-side search', async () => {

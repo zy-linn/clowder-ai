@@ -1,12 +1,17 @@
 import { useEffect } from 'react';
-import { useThemeStore, type ThemeType, type ThemeConfig } from '@/stores/themeStore';
+import { useThemeStore, type ThemeConfig, type ThemeType } from '@/stores/themeStore';
 
 export type { ThemeType, ThemeConfig };
 
 export function useTheme() {
-  const { theme, config, setTheme, toggleTheme, isLoaded, initializeTheme } = useThemeStore();
+  const themeState = useThemeStore();
+  const { theme, config, setTheme, toggleTheme, isLoaded, initializeTheme } = themeState;
 
-  // 初始化主题 - 从 localStorage 读取
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.body.dataset.theme = theme;
+  }, [theme]);
+
   useEffect(() => {
     if (!isLoaded) {
       initializeTheme();

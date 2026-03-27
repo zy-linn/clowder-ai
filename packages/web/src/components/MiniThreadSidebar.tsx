@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import type { CatStatusType } from '@/stores/chat-types';
 import { type Thread, useChatStore } from '@/stores/chatStore';
 import { CatAvatar } from './CatAvatar';
@@ -14,39 +15,35 @@ const MIN_WIDTH = 40;
 const DEFAULT_WIDTH = 160;
 const MAX_WIDTH = 300;
 
-/**
- * Resizable sidebar for split-pane mode.
- * Shows thread icons + names. Drag right edge to resize.
- * Click a thread to assign it to the currently selected pane.
- */
 export function MiniThreadSidebar({ onAssignToPane }: MiniThreadSidebarProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const { threads, splitPaneThreadIds, getThreadState } = useChatStore();
   const assignedSet = new Set(splitPaneThreadIds);
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const dragging = useRef(false);
   const cleanupRef = useRef<(() => void) | null>(null);
 
-  // Unmount safety net: remove any lingering document listeners
   useEffect(() => {
     return () => {
       cleanupRef.current?.();
     };
   }, []);
 
-  const available = threads.filter((t) => t.id !== 'default' && !assignedSet.has(t.id));
-  const assigned = threads.filter((t) => assignedSet.has(t.id));
+  const available = threads.filter((thread) => thread.id !== 'default' && !assignedSet.has(thread.id));
+  const assigned = threads.filter((thread) => assignedSet.has(thread.id));
   const isCollapsed = width < 80;
 
   const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault();
+    (event: React.MouseEvent) => {
+      event.preventDefault();
       dragging.current = true;
-      const startX = e.clientX;
+      const startX = event.clientX;
       const startWidth = width;
 
-      const onMouseMove = (ev: MouseEvent) => {
+      const onMouseMove = (moveEvent: MouseEvent) => {
         if (!dragging.current) return;
-        const delta = ev.clientX - startX;
+        const delta = moveEvent.clientX - startX;
         setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta)));
       };
       const onMouseUp = () => {
@@ -67,40 +64,51 @@ export function MiniThreadSidebar({ onAssignToPane }: MiniThreadSidebarProps) {
 
   return (
     <aside
-      className="relative flex-shrink-0 border-r border-cocreator-light bg-white flex flex-col h-full"
+      className={
+        isBusinessTheme
+          ? 'relative flex h-full flex-shrink-0 flex-col border-r border-[var(--oc-border-default)] bg-[var(--oc-bg-sidebar)]'
+          : 'relative flex h-full flex-shrink-0 flex-col border-r border-cocreator-light bg-white'
+      }
       style={{ width }}
     >
-      <div className="flex-1 overflow-y-auto py-2 px-1 space-y-0.5">
+      <div className="flex-1 space-y-0.5 overflow-y-auto px-1 py-2">
         {assigned.length > 0 && (
-          <div className="px-1 mb-1">
-            <span className="text-[9px] text-gray-400 uppercase tracking-wider">{isCollapsed ? '' : '窗格中'}</span>
+          <div className="mb-1 px-1">
+            <span className={isBusinessTheme ? 'text-[9px] uppercase tracking-wider text-[var(--oc-text-secondary)]' : 'text-[9px] uppercase tracking-wider text-gray-400'}>
+              {isCollapsed ? '' : '窗格中'}
+            </span>
           </div>
         )}
-        {assigned.map((t) => (
-          <MiniThreadRow key={t.id} thread={t} isInPane isCollapsed={isCollapsed} getThreadState={getThreadState} />
+        {assigned.map((thread) => (
+          <MiniThreadRow key={thread.id} thread={thread} isInPane isCollapsed={isCollapsed} getThreadState={getThreadState} />
         ))}
 
-        {assigned.length > 0 && available.length > 0 && <div className="mx-1 border-t border-gray-200 my-1.5" />}
+        {assigned.length > 0 && available.length > 0 && <div className="mx-1 my-1.5 border-t border-gray-200" />}
 
         {available.length > 0 && (
-          <div className="px-1 mb-1">
-            <span className="text-[9px] text-gray-400 uppercase tracking-wider">{isCollapsed ? '' : '可添加'}</span>
+          <div className="mb-1 px-1">
+            <span className={isBusinessTheme ? 'text-[9px] uppercase tracking-wider text-[var(--oc-text-secondary)]' : 'text-[9px] uppercase tracking-wider text-gray-400'}>
+              {isCollapsed ? '' : '可添加'}
+            </span>
           </div>
         )}
-        {available.map((t) => (
+        {available.map((thread) => (
           <MiniThreadRow
-            key={t.id}
-            thread={t}
+            key={thread.id}
+            thread={thread}
             isCollapsed={isCollapsed}
             getThreadState={getThreadState}
-            onClick={() => onAssignToPane(t.id)}
+            onClick={() => onAssignToPane(thread.id)}
           />
         ))}
       </div>
 
-      {/* Drag handle */}
       <div
-        className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-cocreator-primary/20 active:bg-cocreator-primary/30 transition-colors"
+        className={
+          isBusinessTheme
+            ? 'absolute right-0 top-0 h-full w-1.5 cursor-col-resize transition-colors hover:bg-[rgba(79,107,255,0.16)] active:bg-[rgba(79,107,255,0.22)]'
+            : 'absolute right-0 top-0 h-full w-1.5 cursor-col-resize transition-colors hover:bg-cocreator-primary/20 active:bg-cocreator-primary/30'
+        }
         onMouseDown={handleMouseDown}
       />
     </aside>
@@ -124,8 +132,10 @@ function MiniThreadRow({
   };
   onClick?: () => void;
 }) {
-  const ts = getThreadState(thread.id);
-  const status = getCatStatusType(ts.catStatuses);
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
+  const threadState = getThreadState(thread.id);
+  const status = getCatStatusType(threadState.catStatuses);
   const dotColor =
     status === 'error'
       ? 'bg-red-400'
@@ -141,25 +151,37 @@ function MiniThreadRow({
   return (
     <button
       onClick={onClick}
-      className={`relative w-full flex items-center gap-2 rounded-md px-1.5 py-1.5 text-left transition-colors ${
-        isInPane ? 'bg-cocreator-bg/60' : 'hover:bg-gray-100'
+      className={`relative flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left transition-colors ${
+        isBusinessTheme
+          ? isInPane
+            ? 'bg-[var(--oc-bg-surface)]'
+            : 'hover:bg-[var(--oc-bg-surface-soft)]'
+          : isInPane
+            ? 'bg-cocreator-bg/60'
+            : 'hover:bg-gray-100'
       } ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
       title={title}
     >
-      <div className="relative flex-shrink-0 w-6 h-6 flex items-center justify-center">
+      <div className="relative flex h-6 w-6 flex-shrink-0 items-center justify-center">
         {firstCat ? (
           <CatAvatar catId={firstCat} size={20} />
         ) : (
           <span className="text-xs font-medium text-gray-500">{title.charAt(0).toUpperCase()}</span>
         )}
-        {dotColor && <span className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${dotColor}`} />}
+        {dotColor && <span className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full ${dotColor}`} />}
       </div>
-      {!isCollapsed && <span className="text-xs text-gray-700 truncate flex-1 min-w-0">{title}</span>}
-      {ts.unreadCount > 0 && (
+      {!isCollapsed && (
+        <span className={isBusinessTheme ? 'min-w-0 flex-1 truncate text-xs text-[var(--oc-text-body)]' : 'min-w-0 flex-1 truncate text-xs text-gray-700'}>
+          {title}
+        </span>
+      )}
+      {threadState.unreadCount > 0 && (
         <span
-          className={`text-[8px] ${ts.hasUserMention ? 'bg-red-500' : 'bg-amber-500'} text-white rounded-full min-w-[14px] px-0.5 text-center leading-3 flex-shrink-0`}
+          className={`min-w-[14px] flex-shrink-0 rounded-full px-0.5 text-center text-[8px] leading-3 ${
+            threadState.hasUserMention ? 'bg-red-500' : 'bg-amber-500'
+          } text-white`}
         >
-          {ts.unreadCount > 9 ? '9+' : ts.unreadCount}
+          {threadState.unreadCount > 9 ? '9+' : threadState.unreadCount}
         </span>
       )}
     </button>

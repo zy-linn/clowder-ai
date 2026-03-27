@@ -1,6 +1,7 @@
 'use client';
 
 import type { BacklogItem } from '@cat-cafe/shared';
+import { useTheme } from '@/hooks/useTheme';
 
 interface MissionControlCardProps {
   item: BacklogItem;
@@ -16,35 +17,61 @@ const PRIORITY_CLASS: Record<BacklogItem['priority'], string> = {
 };
 
 export function MissionControlCard({ item, selected, onSelect }: MissionControlCardProps) {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
+
   return (
     <button
       type="button"
       onClick={() => onSelect(item.id)}
+      data-testid="mission-control-card"
       className={[
-        'w-full rounded-xl border p-3 text-left transition-all',
-        selected
-          ? 'border-[#5F4B37] bg-[#FFF7EA] shadow-sm'
-          : 'border-[#EADFCF] bg-[#FFFDF8] hover:border-[#CAB396] hover:bg-[#FFF8EE]',
+        'w-full border p-3 text-left transition-all',
+        isBusiness ? 'rounded-[16px]' : 'rounded-xl',
+        isBusiness
+          ? selected
+            ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] shadow-none'
+            : 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] hover:bg-[var(--oc-bg-surface)]'
+          : selected
+            ? 'border-[#5F4B37] bg-[#FFF7EA] shadow-sm'
+            : 'border-[#EADFCF] bg-[#FFFDF8] hover:border-[#CAB396] hover:bg-[#FFF8EE]',
       ].join(' ')}
     >
       <div className="mb-2 flex items-center gap-2">
-        <span className="text-xs font-semibold text-[#5C4B39]">{item.title}</span>
+        <span className={isBusiness ? 'text-xs font-semibold text-[var(--oc-text-heading)]' : 'text-xs font-semibold text-[#5C4B39]'}>
+          {item.title}
+        </span>
         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_CLASS[item.priority]}`}>
           {item.priority.toUpperCase()}
         </span>
       </div>
-      <p className="line-clamp-2 text-[11px] leading-relaxed text-[#715F4C]">{item.summary}</p>
+      <p
+        className={
+          isBusiness
+            ? 'line-clamp-2 text-[11px] leading-relaxed text-[var(--oc-text-secondary)]'
+            : 'line-clamp-2 text-[11px] leading-relaxed text-[#715F4C]'
+        }
+      >
+        {item.summary}
+      </p>
       {item.tags.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
           {item.tags.map((tag) => (
-            <span key={tag} className="rounded bg-[#EFE7DC] px-1.5 py-0.5 text-[10px] text-[#6B5946]">
+            <span
+              key={tag}
+              className={
+                isBusiness
+                  ? 'rounded-full bg-[var(--oc-bg-surface-muted)] px-1.5 py-0.5 text-[10px] text-[var(--oc-text-secondary)]'
+                  : 'rounded bg-[#EFE7DC] px-1.5 py-0.5 text-[10px] text-[#6B5946]'
+              }
+            >
               #{tag}
             </span>
           ))}
         </div>
       )}
       {item.suggestion && (
-        <p className="mt-2 text-[10px] text-[#8A765F]">
+        <p className={isBusiness ? 'mt-2 text-[10px] text-[var(--oc-text-muted)]' : 'mt-2 text-[10px] text-[#8A765F]'}>
           建议领取：@{item.suggestion.catId} · {item.suggestion.requestedPhase}
         </p>
       )}

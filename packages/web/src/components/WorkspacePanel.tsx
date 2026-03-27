@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFileManagement } from '@/hooks/useFileManagement';
 import { usePersistedState } from '@/hooks/usePersistedState';
+import { useTheme } from '@/hooks/useTheme';
 import type { TreeNode } from '@/hooks/useWorkspace';
 import { useWorkspace } from '@/hooks/useWorkspace';
 import { useChatStore } from '@/stores/chatStore';
@@ -128,6 +129,8 @@ const MenuIcon = () => (
 
 /* ── Main panel ──────────────────────────────── */
 export function WorkspacePanel() {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const confirm = useConfirm();
   const {
     worktrees,
@@ -559,18 +562,38 @@ export function WorkspacePanel() {
   return (
     <aside
       ref={panelRef}
-      className="hidden lg:flex flex-1 min-w-0 border-l border-cocreator-light bg-cafe-white/95 flex-col overflow-hidden animate-slide-in-right"
+      className={
+        isBusinessTheme
+          ? 'hidden lg:flex flex-1 min-w-0 flex-col overflow-hidden border-l border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-body)] animate-slide-in-right'
+          : 'hidden lg:flex flex-1 min-w-0 border-l border-cocreator-light bg-cafe-white/95 flex-col overflow-hidden animate-slide-in-right'
+      }
+      data-testid="workspace-panel-shell"
     >
       {/* Header */}
-      <div className="px-3 py-2.5 border-b border-cocreator-light flex items-center justify-between bg-cocreator-bg/50">
+      <div
+        className={
+          isBusinessTheme
+            ? 'flex items-center justify-between border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 py-2.5'
+            : 'px-3 py-2.5 border-b border-cocreator-light flex items-center justify-between bg-cocreator-bg/50'
+        }
+      >
         <div className="flex items-center gap-2 min-w-0">
           <MenuIcon />
-          <span className="text-sm font-semibold text-cafe-black">Workspace</span>
+          <span
+            className={isBusinessTheme ? 'text-sm font-semibold text-[var(--oc-text-title)]' : 'text-sm font-semibold text-cafe-black'}
+            data-testid="workspace-panel-title"
+          >
+            Workspace
+          </span>
         </div>
         <button
           type="button"
           onClick={() => setRightPanelMode('status')}
-          className="w-6 h-6 flex items-center justify-center rounded-md text-cocreator-dark/40 hover:text-cocreator-dark hover:bg-cocreator-light/60 transition-colors"
+          className={
+            isBusinessTheme
+              ? 'flex h-6 w-6 items-center justify-center rounded-md text-[var(--oc-text-secondary)] transition-colors hover:bg-[var(--oc-bg-surface)] hover:text-[var(--oc-text-title)]'
+              : 'w-6 h-6 flex items-center justify-center rounded-md text-cocreator-dark/40 hover:text-cocreator-dark hover:bg-cocreator-light/60 transition-colors'
+          }
           title="切换到状态面板"
         >
           <CloseIcon />
@@ -579,7 +602,13 @@ export function WorkspacePanel() {
 
       {/* Worktree indicator */}
       {currentWorktree && (
-        <div className="px-3 py-2 border-b border-cocreator-light/60 bg-cocreator-bg/30">
+        <div
+          className={
+            isBusinessTheme
+              ? 'border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 py-2'
+              : 'px-3 py-2 border-b border-cocreator-light/60 bg-cocreator-bg/30'
+          }
+        >
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
             <span className="text-xs font-medium text-cafe-black truncate">{currentWorktree.branch}</span>
@@ -590,7 +619,11 @@ export function WorkspacePanel() {
               <select
                 value={worktreeId ?? ''}
                 onChange={(e) => setWorktreeId(e.target.value || null)}
-                className="flex-1 text-[10px] border border-cocreator-light rounded-md px-2 py-1 bg-white/80 text-cafe-black focus:outline-none focus:border-cocreator-primary"
+                className={
+                  isBusinessTheme
+                    ? 'flex-1 rounded-md border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-2 py-1 text-[10px] text-[var(--oc-text-body)] focus:border-[#4F6BFF] focus:outline-none'
+                    : 'flex-1 text-[10px] border border-cocreator-light rounded-md px-2 py-1 bg-white/80 text-cafe-black focus:outline-none focus:border-cocreator-primary'
+                }
               >
                 {worktrees.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -606,8 +639,17 @@ export function WorkspacePanel() {
       )}
 
       {/* Search bar */}
-      <form onSubmit={handleSearchSubmit} className="px-3 py-2 border-b border-cocreator-light/40">
-        <div className="flex items-center gap-1.5 bg-white/80 border border-cocreator-light rounded-lg px-2.5 py-1.5 focus-within:border-cocreator-primary focus-within:ring-1 focus-within:ring-cocreator-primary/20 transition-all">
+      <form
+        onSubmit={handleSearchSubmit}
+        className={isBusinessTheme ? 'border-b border-[var(--oc-border-default)] px-3 py-2' : 'px-3 py-2 border-b border-cocreator-light/40'}
+      >
+        <div
+          className={
+            isBusinessTheme
+              ? 'flex items-center gap-1.5 rounded-lg border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-2.5 py-1.5 transition-all focus-within:border-[#4F6BFF] focus-within:ring-1 focus-within:ring-[#4F6BFF]/20'
+              : 'flex items-center gap-1.5 bg-white/80 border border-cocreator-light rounded-lg px-2.5 py-1.5 focus-within:border-cocreator-primary focus-within:ring-1 focus-within:ring-cocreator-primary/20 transition-all'
+          }
+        >
           <SearchIcon />
           <input
             type="text"
@@ -646,7 +688,7 @@ export function WorkspacePanel() {
       </form>
 
       {/* Files / Changes toggle */}
-      <div className="flex border-b border-cocreator-light/40">
+      <div className={isBusinessTheme ? 'flex border-b border-[var(--oc-border-default)]' : 'flex border-b border-cocreator-light/40'}>
         {(['files', 'changes', 'git', 'terminal', 'browser'] as const).map((mode) => {
           const labels: Record<typeof mode, string> = {
             files: 'Files',
@@ -661,9 +703,13 @@ export function WorkspacePanel() {
               type="button"
               onClick={() => setViewMode(mode)}
               className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition-colors ${
-                viewMode === mode
-                  ? 'text-cocreator-primary border-b-2 border-cocreator-primary'
-                  : 'text-cocreator-dark/40 hover:text-cocreator-dark/60'
+                isBusinessTheme
+                  ? viewMode === mode
+                    ? 'border-b-2 border-[#4F6BFF] text-[#4F6BFF]'
+                    : 'text-[var(--oc-text-secondary)] hover:text-[var(--oc-text-title)]'
+                  : viewMode === mode
+                    ? 'text-cocreator-primary border-b-2 border-cocreator-primary'
+                    : 'text-cocreator-dark/40 hover:text-cocreator-dark/60'
               }`}
             >
               {labels[mode]}

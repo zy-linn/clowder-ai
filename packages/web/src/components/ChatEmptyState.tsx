@@ -1,3 +1,4 @@
+import { useTheme } from '@/hooks/useTheme';
 import { BootcampIcon } from './icons/BootcampIcon';
 
 interface ChatEmptyStateProps {
@@ -35,19 +36,28 @@ export function ChatEmptyState({
   isCurrentBootcampThread,
   onOpenBootcampList,
 }: ChatEmptyStateProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const shouldShowBootcampEntry = SHOW_BOOTCAMP_ENTRY && !isCurrentBootcampThread;
 
   return (
-    <section className="min-h-full px-4 py-10 sm:px-6" data-testid="chat-empty-state">
+    <section
+      className={`min-h-full px-4 py-10 sm:px-6 ${isBusinessTheme ? 'bg-[var(--oc-bg-page)]' : ''}`}
+      data-testid="chat-empty-state"
+    >
       <div className="mx-auto flex min-h-[calc(100vh-21rem)] max-w-4xl items-center justify-center">
         <div className="w-full text-center">
           <div className="mx-auto max-w-2xl">
-            <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.03em] text-[#1F1F24] sm:text-[42px]">
+            <h2
+              className={`text-[34px] font-semibold leading-tight tracking-[-0.03em] sm:text-[42px] ${isBusinessTheme ? 'text-[var(--oc-text-title)]' : 'text-[#1F1F24]'}`}
+            >
               <span className="text-[#4D6BFF]">OfficeClaw</span>
               <span className="text-[#4D6BFF]">，</span>
               <span>制定目标自动规划执行</span>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#8E8E98] sm:text-[15px]">
+            <p
+              className={`mx-auto mt-4 max-w-xl text-sm leading-7 sm:text-[15px] ${isBusinessTheme ? 'text-[var(--oc-text-secondary)]' : 'text-[#8E8E98]'}`}
+            >
               即刻部署专属 AI 专家，成为 7x24 小时在线的超级助手。
             </p>
           </div>
@@ -56,15 +66,19 @@ export function ChatEmptyState({
             {heroCards.map((card) => (
               <article
                 key={card.title}
-                className="rounded-[22px] border border-[#EEF0F5] bg-white px-6 py-6 text-left shadow-[0_14px_40px_rgba(17,24,39,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
+                className={`rounded-[22px] border bg-white px-6 py-6 text-left transition-transform duration-200 hover:-translate-y-0.5 ${isBusinessTheme ? 'border-[var(--oc-border-default)] shadow-none' : 'border-[#EEF0F5] shadow-[0_14px_40px_rgba(17,24,39,0.05)]'}`}
               >
                 <div className="flex items-start gap-4">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white">
                     <img src={card.imageSrc} alt={card.imageAlt} className="h-14 w-14 object-contain" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-base font-semibold text-[#202127]">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[#8E8E98]">{card.description}</p>
+                    <h3 className={`text-base font-semibold ${isBusinessTheme ? 'text-[var(--oc-text-heading)]' : 'text-[#202127]'}`}>
+                      {card.title}
+                    </h3>
+                    <p className={`mt-2 text-sm leading-6 ${isBusinessTheme ? 'text-[var(--oc-text-secondary)]' : 'text-[#8E8E98]'}`}>
+                      {card.description}
+                    </p>
                   </div>
                 </div>
               </article>

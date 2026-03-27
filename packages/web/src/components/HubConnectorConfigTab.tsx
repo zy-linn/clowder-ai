@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { apiFetch } from '@/utils/api-client';
 import {
   DEFAULT_VISUAL,
@@ -42,6 +43,8 @@ function getDocsHost(url: string): string {
 }
 
 export function HubConnectorConfigTab() {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -120,17 +123,31 @@ export function HubConnectorConfigTab() {
   };
 
   if (isLoading) {
-    return <p className="py-8 text-center text-sm text-gray-400">加载中...</p>;
+    return <p className={isBusinessTheme ? 'py-8 text-center text-sm text-[var(--oc-text-secondary)]' : 'py-8 text-center text-sm text-gray-400'}>加载中...</p>;
   }
 
   if (platforms.length === 0) {
-    return <p className="py-8 text-center text-sm text-gray-400">无法加载平台配置信息</p>;
+    return (
+      <p className={isBusinessTheme ? 'py-8 text-center text-sm text-[var(--oc-text-secondary)]' : 'py-8 text-center text-sm text-gray-400'}>
+        无法加载平台配置信息
+      </p>
+    );
   }
 
   return (
-    <div className="space-y-3">
+    <div
+      className={`space-y-3 ${isBusinessTheme ? 'text-[var(--oc-text-body)]' : ''}`}
+      data-testid="connector-config-shell"
+    >
       <div className="grid grid-cols-[220px_minmax(0,1fr)] gap-3" data-testid="connector-two-col-layout">
-        <aside className="rounded-2xl border border-gray-200 bg-white p-2">
+        <aside
+          className={
+            isBusinessTheme
+              ? 'rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] p-2.5'
+              : 'rounded-2xl border border-gray-200 bg-white p-2'
+          }
+          data-testid="connector-platform-list"
+        >
           <div className="space-y-1.5">
             {platforms.map((platform) => {
               const v = PLATFORM_VISUALS[platform.id] ?? DEFAULT_VISUAL;
@@ -141,7 +158,13 @@ export function HubConnectorConfigTab() {
                   type="button"
                   onClick={() => handleSelect(platform.id)}
                   className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors ${
-                    isSelected ? 'border-sky-300 bg-sky-50' : 'border-transparent hover:bg-gray-50'
+                    isBusinessTheme
+                      ? isSelected
+                        ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)]'
+                        : 'border-transparent hover:bg-[var(--oc-bg-surface-soft)]'
+                      : isSelected
+                        ? 'border-sky-300 bg-sky-50'
+                        : 'border-transparent hover:bg-gray-50'
                   }`}
                   data-testid={`platform-card-${platform.id}`}
                 >
@@ -152,11 +175,19 @@ export function HubConnectorConfigTab() {
                     {v.icon}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-semibold text-gray-900">
+                    <span className={isBusinessTheme ? 'block truncate text-[14px] font-semibold text-[var(--oc-text-heading)]' : 'block truncate text-[14px] font-semibold text-gray-900'}>
                       {platform.name} {platform.nameEn !== platform.name ? platform.nameEn : ''}
                     </span>
                     <span
-                      className={`flex items-center gap-1 text-xs ${platform.configured ? 'text-green-600' : 'text-gray-400'}`}
+                      className={`flex items-center gap-1 text-xs ${
+                        platform.configured
+                          ? isBusinessTheme
+                            ? 'text-[#16A34A]'
+                            : 'text-green-600'
+                          : isBusinessTheme
+                            ? 'text-[var(--oc-text-secondary)]'
+                            : 'text-gray-400'
+                      }`}
                     >
                       {platform.configured ? <StatusDotConnected /> : <StatusDotIdle />}
                       {platform.configured ? '已配置' : '未配置'}
@@ -168,24 +199,40 @@ export function HubConnectorConfigTab() {
           </div>
         </aside>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-4">
-          {!selectedPlatform && <p className="py-8 text-center text-sm text-gray-400">请选择一个平台</p>}
+        <section
+          className={
+            isBusinessTheme
+              ? 'rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] p-5'
+              : 'rounded-2xl border border-gray-200 bg-white p-4'
+          }
+        >
+          {!selectedPlatform && (
+            <p className={isBusinessTheme ? 'py-8 text-center text-sm text-[var(--oc-text-secondary)]' : 'py-8 text-center text-sm text-gray-400'}>
+              请选择一个平台
+            </p>
+          )}
 
           {selectedPlatform && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className={isBusinessTheme ? 'flex items-center justify-between border-b border-[var(--oc-border-default)] pb-3' : 'flex items-center justify-between border-b border-gray-100 pb-3'}>
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">
+                  <h3 className={isBusinessTheme ? 'text-[17px] font-bold text-[var(--oc-text-heading)]' : 'text-base font-semibold text-gray-900'}>
                     {selectedPlatform.name}
                     {selectedPlatform.nameEn !== selectedPlatform.name ? ` (${selectedPlatform.nameEn})` : ''}
                   </h3>
-                  <p className="mt-1 text-xs text-gray-500">平台配置与连接测试</p>
+                  <p className={isBusinessTheme ? 'mt-1 text-xs text-[var(--oc-text-secondary)]' : 'mt-1 text-xs text-gray-500'}>
+                    平台配置与连接测试
+                  </p>
                 </div>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${
                     selectedPlatform.configured
-                      ? 'bg-green-50 text-green-700 border border-green-200'
-                      : 'bg-gray-50 text-gray-500 border border-gray-200'
+                      ? isBusinessTheme
+                        ? 'border border-[#BBF7D0] bg-[#ECFDF3] text-[#15803D]'
+                        : 'bg-green-50 text-green-700 border border-green-200'
+                      : isBusinessTheme
+                        ? 'border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-secondary)]'
+                        : 'bg-gray-50 text-gray-500 border border-gray-200'
                   }`}
                 >
                   {selectedPlatform.configured ? <StatusDotConnected /> : <StatusDotIdle />}
@@ -199,7 +246,9 @@ export function HubConnectorConfigTab() {
                     <div key={idx} className="space-y-1.5">
                       <div className="flex items-center gap-1.5">
                         <StepBadge num={idx + 1} />
-                        <span className="text-[13px] font-medium text-gray-900">{step}</span>
+                        <span className={isBusinessTheme ? 'text-[13px] font-medium text-[var(--oc-text-heading)]' : 'text-[13px] font-medium text-gray-900'}>
+                          {step}
+                        </span>
                       </div>
                       {idx === 0 && (
                         <div className="ml-[26px]">
@@ -217,14 +266,20 @@ export function HubConnectorConfigTab() {
                     <div key={idx} className="space-y-1.5">
                       <div className="flex items-center gap-1.5">
                         <StepBadge num={idx + 1} />
-                        <span className="text-[13px] font-medium text-gray-900">{step}</span>
+                        <span className={isBusinessTheme ? 'text-[13px] font-medium text-[var(--oc-text-heading)]' : 'text-[13px] font-medium text-gray-900'}>
+                          {step}
+                        </span>
                       </div>
                       {idx === 0 && selectedPlatform.docsUrl && (
                         <a
                           href={selectedPlatform.docsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="ml-[26px] flex items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-2 text-xs text-blue-600 transition-colors hover:bg-sky-100"
+                          className={
+                            isBusinessTheme
+                              ? 'ml-[26px] flex items-center gap-1.5 rounded-[10px] bg-[var(--oc-bg-surface-soft)] px-3 py-2 text-xs text-[var(--oc-accent-link)] transition-colors hover:bg-[#EEF2FF]'
+                              : 'ml-[26px] flex items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-2 text-xs text-blue-600 transition-colors hover:bg-sky-100'
+                          }
                         >
                           <ExternalLinkIcon />
                           <span>{getDocsHost(selectedPlatform.docsUrl)} · 查看官方文档</span>
@@ -236,14 +291,16 @@ export function HubConnectorConfigTab() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-1.5">
                       <StepBadge num={Math.max(selectedPlatform.steps.length, 1)} />
-                      <span className="text-[13px] font-medium text-gray-900">填写应用凭证</span>
+                      <span className={isBusinessTheme ? 'text-[13px] font-medium text-[var(--oc-text-heading)]' : 'text-[13px] font-medium text-gray-900'}>
+                        填写应用凭证
+                      </span>
                     </div>
                     <div className="ml-[26px] space-y-2.5">
                       {selectedPlatform.fields.map((field) => (
                         <div key={field.envName}>
                           <label
                             htmlFor={`config-${field.envName}`}
-                            className="mb-1 block text-xs font-medium text-gray-500"
+                            className={isBusinessTheme ? 'mb-1 block text-xs font-medium text-[var(--oc-text-secondary)]' : 'mb-1 block text-xs font-medium text-gray-500'}
                           >
                             {field.label}
                             {field.sensitive && (
@@ -253,7 +310,13 @@ export function HubConnectorConfigTab() {
                             )}
                           </label>
                           {field.sensitive ? (
-                            <div className="flex h-9 w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-[13px] text-gray-400">
+                            <div
+                              className={
+                                isBusinessTheme
+                                  ? 'flex h-9 w-full items-center rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 text-[13px] text-[var(--oc-text-secondary)]'
+                                  : 'flex h-9 w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-[13px] text-gray-400'
+                              }
+                            >
                               {field.currentValue ?? '••••••••••••••••'}
                               <span className="ml-auto whitespace-nowrap text-[10px] text-amber-600">编辑 .env</span>
                             </div>
@@ -264,7 +327,11 @@ export function HubConnectorConfigTab() {
                               placeholder={field.currentValue ?? '未设置'}
                               value={fieldValues[field.envName] ?? ''}
                               onChange={(e) => setFieldValues((prev) => ({ ...prev, [field.envName]: e.target.value }))}
-                              className="h-9 w-full rounded-lg border border-gray-300 bg-gray-50 px-3 text-[13px] transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                              className={
+                                isBusinessTheme
+                                  ? 'h-9 w-full rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 text-[13px] text-[var(--oc-text-body)] transition-colors focus:border-[#4F6BFF] focus:outline-none focus:ring-2 focus:ring-[#4F6BFF]/20'
+                                  : 'h-9 w-full rounded-lg border border-gray-300 bg-gray-50 px-3 text-[13px] transition-colors focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30'
+                              }
                               data-testid={`field-${field.envName}`}
                             />
                           )}
@@ -276,7 +343,9 @@ export function HubConnectorConfigTab() {
                   <div className="space-y-2">
                     <div className="flex items-center gap-1.5">
                       <StepBadge num={Math.max(selectedPlatform.steps.length + 1, 2)} />
-                      <span className="text-[13px] font-medium text-gray-900">测试连接并保存</span>
+                      <span className={isBusinessTheme ? 'text-[13px] font-medium text-[var(--oc-text-heading)]' : 'text-[13px] font-medium text-gray-900'}>
+                        测试连接并保存
+                      </span>
                     </div>
                     {saveResult && (
                       <div
@@ -293,7 +362,11 @@ export function HubConnectorConfigTab() {
                     <div className="ml-[26px] flex items-center gap-2">
                       <button
                         type="button"
-                        className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                        className={
+                          isBusinessTheme
+                            ? 'flex items-center gap-1.5 rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-4 py-2 text-[13px] font-medium text-[var(--oc-text-secondary)] transition-colors hover:bg-[var(--oc-bg-surface-soft)] hover:text-[var(--oc-text-title)]'
+                            : 'flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-4 py-2 text-[13px] font-medium text-gray-700 transition-colors hover:bg-gray-50'
+                        }
                         onClick={() => setSaveResult({ type: 'success', message: '连接测试功能即将上线' })}
                       >
                         <WifiIcon />
@@ -304,7 +377,11 @@ export function HubConnectorConfigTab() {
                           type="button"
                           onClick={() => handleSave(selectedPlatform)}
                           disabled={saving}
-                          className="rounded-lg bg-blue-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+                          className={
+                            isBusinessTheme
+                              ? 'rounded-[10px] bg-[#171717] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#0f172a] disabled:opacity-50'
+                              : 'rounded-lg bg-blue-500 px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50'
+                          }
                           data-testid={`save-${selectedPlatform.id}`}
                         >
                           {saving ? '保存中...' : '保存配置'}
@@ -329,9 +406,17 @@ export function HubConnectorConfigTab() {
         </section>
       </div>
 
-      <div className="flex items-center gap-2 rounded-[10px] border border-yellow-300 bg-amber-50 px-3.5 py-2.5">
+      <div
+        className={
+          isBusinessTheme
+            ? 'flex items-center gap-2 rounded-[12px] border border-[rgba(244,77,34,0.18)] bg-[rgba(244,77,34,0.08)] px-3.5 py-2.5'
+            : 'flex items-center gap-2 rounded-[10px] border border-yellow-300 bg-amber-50 px-3.5 py-2.5'
+        }
+      >
         <TriangleAlertIcon />
-        <span className="text-xs font-medium text-amber-800">修改配置后需重启 API 生效</span>
+        <span className={isBusinessTheme ? 'text-xs font-medium text-[#B54708]' : 'text-xs font-medium text-amber-800'}>
+          修改配置后需重启 API 生效
+        </span>
       </div>
     </div>
   );

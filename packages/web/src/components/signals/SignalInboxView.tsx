@@ -16,6 +16,7 @@ import {
   updateCollection,
   updateSignalArticle,
 } from '@/utils/signals-api';
+import { useTheme } from '@/hooks/useTheme';
 import { filterSignalArticles, type SignalArticleFilters } from '@/utils/signals-view';
 import { BatchActionBar } from './BatchActionBar';
 import { SignalArticleDetail as SignalArticleDetailPanel } from './SignalArticleDetail';
@@ -43,6 +44,8 @@ function toSignalTier(value: string | undefined): SignalTier | undefined {
 }
 
 export function SignalInboxView() {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
   const [items, setItems] = useState<readonly SignalArticle[]>([]);
   const [showServerSearchResults, setShowServerSearchResults] = useState(false);
   const [stats, setStats] = useState<SignalArticleStats | null>(null);
@@ -230,19 +233,46 @@ export function SignalInboxView() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cocreator-bg via-cafe-white to-cafe-white">
+    <div
+      data-testid="signal-inbox-shell"
+      className={
+        isBusiness
+          ? 'min-h-screen bg-[var(--oc-bg-page)]'
+          : 'min-h-screen bg-gradient-to-b from-cocreator-bg via-cafe-white to-cafe-white'
+      }
+    >
       <main className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-5 sm:px-6">
-        <header className="rounded-2xl border border-cocreator-light bg-white p-4 shadow-sm">
+        <header
+          data-testid="signal-inbox-header"
+          className={
+            isBusiness
+              ? 'rounded-[20px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] p-5 shadow-none'
+              : 'rounded-2xl border border-cocreator-light bg-white p-4 shadow-sm'
+          }
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-xl font-bold text-cafe-black">Signal Inbox</h1>
+              <h1
+                className={
+                  isBusiness ? 'text-[26px] font-bold text-[var(--oc-text-title)]' : 'text-xl font-bold text-cafe-black'
+                }
+              >
+                Signal Inbox
+              </h1>
               <p className="text-sm text-gray-500">浏览、筛选和管理 F21 信号文章</p>
             </div>
             <SignalNav active="signals" />
           </div>
         </header>
 
-        <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm space-y-3">
+        <div
+          data-testid="signal-inbox-filters"
+          className={
+            isBusiness
+              ? 'space-y-3 rounded-[20px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] p-5 shadow-none'
+              : 'space-y-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm'
+          }
+        >
           <div className="flex gap-1">
             {(
               [
@@ -256,7 +286,13 @@ export function SignalInboxView() {
                 type="button"
                 onClick={() => handleStatusTab(key)}
                 className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  filters.status === key ? 'bg-cocreator-primary text-white' : 'text-gray-600 hover:bg-gray-100'
+                  isBusiness
+                    ? filters.status === key
+                      ? 'bg-[#171717] text-white'
+                      : 'text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface-soft)]'
+                    : filters.status === key
+                      ? 'bg-cocreator-primary text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 {label}
@@ -268,7 +304,11 @@ export function SignalInboxView() {
               value={filters.query}
               onChange={(event) => setFilters((current) => ({ ...current, query: event.target.value }))}
               placeholder="搜索标题、来源、标签..."
-              className="rounded-lg border border-gray-200 px-3 py-2 text-sm md:col-span-2"
+              className={
+                isBusiness
+                  ? 'rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-muted)] px-3 py-2 text-sm text-[var(--oc-text-body)] placeholder:text-[var(--oc-text-placeholder)] md:col-span-2'
+                  : 'rounded-lg border border-gray-200 px-3 py-2 text-sm md:col-span-2'
+              }
             />
             <select
               value={filters.tier}
@@ -276,7 +316,11 @@ export function SignalInboxView() {
                 setFilters((current) => ({ ...current, tier: event.target.value as SignalArticleFilters['tier'] }))
               }
               name="tier"
-              className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className={
+                isBusiness
+                  ? 'rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-muted)] px-3 py-2 text-sm text-[var(--oc-text-body)]'
+                  : 'rounded-lg border border-gray-200 px-3 py-2 text-sm'
+              }
             >
               <option value="all">Tier: 全部</option>
               <option value="1">Tier 1</option>
@@ -288,7 +332,11 @@ export function SignalInboxView() {
               value={filters.source}
               onChange={(event) => setFilters((current) => ({ ...current, source: event.target.value }))}
               name="source"
-              className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className={
+                isBusiness
+                  ? 'rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-muted)] px-3 py-2 text-sm text-[var(--oc-text-body)]'
+                  : 'rounded-lg border border-gray-200 px-3 py-2 text-sm'
+              }
             >
               <option value="all">来源: 全部</option>
               {sources.map((source) => (
@@ -299,7 +347,11 @@ export function SignalInboxView() {
             </select>
             <button
               type="submit"
-              className="rounded-lg bg-cocreator-primary px-3 py-2 text-sm font-semibold text-white hover:bg-cocreator-dark md:col-span-4"
+              className={
+                isBusiness
+                  ? 'rounded-[10px] bg-[#171717] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2A2A2A] md:col-span-4'
+                  : 'rounded-lg bg-cocreator-primary px-3 py-2 text-sm font-semibold text-white hover:bg-cocreator-dark md:col-span-4'
+              }
             >
               搜索
             </button>
@@ -309,7 +361,13 @@ export function SignalInboxView() {
         <SignalStatsCards stats={stats} />
 
         {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          <div
+            className={
+              isBusiness
+                ? 'rounded-[12px] border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700'
+                : 'rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700'
+            }
+          >
             请求失败: {error}
           </div>
         )}

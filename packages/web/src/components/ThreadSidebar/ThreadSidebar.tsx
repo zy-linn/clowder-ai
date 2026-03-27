@@ -35,6 +35,7 @@ export function ThreadSidebar({
   activeMenu,
 }: ThreadSidebarProps) {
   const { theme, config } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const router = useRouter();
   const {
     threads,
@@ -407,21 +408,27 @@ export function ThreadSidebar({
     'flex w-full items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors';
   const chatMenuItemBase =
     'flex flex-1 min-w-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors';
-  const menuItemActive = 'bg-white text-[#111827] shadow-[0_1px_1px_rgba(16,24,40,0.04)]';
-  const menuItemInactive = 'text-[#4B5563] hover:bg-white/70 hover:text-[#111827]';
+  const menuItemActive = isBusinessTheme
+    ? 'border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-title)] shadow-none'
+    : 'bg-white text-[#111827] shadow-[0_1px_1px_rgba(16,24,40,0.04)]';
+  const menuItemInactive = isBusinessTheme
+    ? 'text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface-soft)] hover:text-[var(--oc-text-title)]'
+    : 'text-[#4B5563] hover:bg-white/70 hover:text-[#111827]';
 
   return (
     <>
       <aside
-        className={`${className ?? 'w-[248px]'} border-r border-[#E5E7EB] bg-[#F3F4F6] flex flex-col h-full`}
+        className={`${className ?? 'w-[248px]'} flex h-full flex-col border-r ${isBusinessTheme ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-sidebar)]' : 'border-[#E5E7EB] bg-[#F3F4F6]'}`}
         style={{
-          backgroundColor: theme === 'business' && config ? config.sidebar.bg : undefined,
+          backgroundColor: isBusinessTheme ? config.shell.sidebarBgVar : undefined,
         }}
       >
-        <div className="px-3 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+        <div className={`flex items-center justify-between border-b px-3 py-4 ${isBusinessTheme ? 'border-[var(--oc-border-default)]' : 'border-[#E5E7EB]'}`}>
           <div className="flex items-center gap-2">
-            <img src="/images/lobster.svg" alt="OfficeClaw" className="w-9 h-9 rounded-lg" />
-            <span className="text-[31px] font-semibold leading-none tracking-tight text-[#111827]">OfficeClaw</span>
+            <img src="/images/lobster.svg" alt="OfficeClaw" className={isBusinessTheme ? 'h-9 w-9 rounded-[10px]' : 'w-9 h-9 rounded-lg'} />
+            <span className={isBusinessTheme ? 'text-[31px] font-semibold leading-none tracking-tight text-[var(--oc-text-title)]' : 'text-[31px] font-semibold leading-none tracking-tight text-[#111827]'}>
+              OfficeClaw
+            </span>
           </div>
         </div>
 
@@ -435,7 +442,7 @@ export function ThreadSidebar({
                 onClose?.();
               }
             }}
-            className="flex w-full items-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-2.5 py-1.5 text-left text-xs font-medium text-[#4B5563] transition-colors hover:bg-[#F9FAFB] hover:text-[#111827]"
+            className={`flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs font-medium transition-colors ${isBusinessTheme ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface-soft)] hover:text-[var(--oc-text-title)]' : 'border-[#E5E7EB] bg-white text-[#4B5563] hover:bg-[#F9FAFB] hover:text-[#111827]'}`}
             data-testid="sidebar-mission-control"
           >
             <svg
@@ -494,7 +501,7 @@ export function ThreadSidebar({
                   type="button"
                   onClick={() => setShowPicker(true)}
                   disabled={isCreating}
-                  className="text-xs px-2.5 py-1.5 rounded-md bg-[#4F46E5] text-white hover:bg-[#4338CA] disabled:opacity-40 transition-colors font-medium"
+                  className={`rounded-md px-2.5 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-40 ${isBusinessTheme ? 'bg-[#171717] hover:bg-[#0f172a]' : 'bg-[#4F46E5] hover:bg-[#4338CA]'}`}
                 >
                   {isCreating ? '...' : '+ 新对话'}
                 </button>
@@ -554,7 +561,7 @@ export function ThreadSidebar({
           </div>
         )}
 
-        <div className="px-3 py-2 border-b border-[#E5E7EB]">
+        <div className={`px-3 py-2 border-b ${isBusinessTheme ? 'border-[var(--oc-border-default)]' : 'border-[#E5E7EB]'}`}>
           <div className="mb-1.5 flex items-center justify-between">
             <span className="text-[11px] font-semibold text-[#6B7280]">渠道消息</span>
             <svg
@@ -573,7 +580,7 @@ export function ThreadSidebar({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索对话、项目或 ID..."
             autoComplete="off"
-            className="w-full rounded-md border border-[#E5E7EB] bg-white px-2.5 py-1.5 text-xs text-[#374151] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#A5B4FC] focus:ring-1 focus:ring-[#A5B4FC]"
+            className={`w-full rounded-md border px-2.5 py-1.5 text-xs placeholder:text-[#9CA3AF] focus:outline-none focus:ring-1 ${isBusinessTheme ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-body)] focus:border-[#4F6BFF] focus:ring-[#4F6BFF]' : 'border-[#E5E7EB] bg-white text-[#374151] focus:border-[#A5B4FC] focus:ring-[#A5B4FC]'}`}
           />
           {unreadIds.size > 0 && (
             <button

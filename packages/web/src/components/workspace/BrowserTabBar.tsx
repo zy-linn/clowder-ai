@@ -1,5 +1,6 @@
 'use client';
 
+import { useTheme } from '@/hooks/useTheme';
 import type { BrowserTab } from './BrowserPanel';
 
 interface BrowserTabBarProps {
@@ -11,8 +12,17 @@ interface BrowserTabBarProps {
 }
 
 export function BrowserTabBar({ tabs, activeTabId, onSelect, onClose, onAdd }: BrowserTabBarProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
+
   return (
-    <div className="flex items-center bg-[#F5F0EB] border-b border-[#FFDDD2] overflow-x-auto">
+    <div
+      className={
+        isBusinessTheme
+          ? 'flex items-center overflow-x-auto border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)]'
+          : 'flex items-center overflow-x-auto border-b border-[#FFDDD2] bg-[#F5F0EB]'
+      }
+    >
       {tabs.map((tab) => {
         const isActive = tab.id === activeTabId;
         return (
@@ -20,10 +30,14 @@ export function BrowserTabBar({ tabs, activeTabId, onSelect, onClose, onAdd }: B
             key={tab.id}
             type="button"
             onClick={() => onSelect(tab.id)}
-            className={`group flex items-center gap-1 px-3 py-1.5 text-[11px] border-r border-[#FFDDD2]/50 shrink-0 max-w-[180px] transition-colors ${
-              isActive
-                ? 'bg-[#FDF8F3] text-[#5a4a42] font-medium'
-                : 'text-[#5a4a42]/60 hover:text-[#5a4a42] hover:bg-[#FDF8F3]/50'
+            className={`group flex max-w-[180px] shrink-0 items-center gap-1 px-3 py-1.5 text-[11px] transition-colors ${
+              isBusinessTheme
+                ? isActive
+                  ? 'border-r border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] font-medium text-[var(--oc-text-title)]'
+                  : 'border-r border-[var(--oc-border-default)] text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface)] hover:text-[var(--oc-text-title)]'
+                : isActive
+                  ? 'border-r border-[#FFDDD2]/50 bg-[#FDF8F3] font-medium text-[#5a4a42]'
+                  : 'border-r border-[#FFDDD2]/50 text-[#5a4a42]/60 hover:bg-[#FDF8F3]/50 hover:text-[#5a4a42]'
             }`}
           >
             <span className="truncate">{tab.title}</span>
@@ -32,12 +46,16 @@ export function BrowserTabBar({ tabs, activeTabId, onSelect, onClose, onAdd }: B
                 e.stopPropagation();
                 onClose(tab.id);
               }}
-              className="ml-1 opacity-0 group-hover:opacity-100 text-[#5a4a42]/40 hover:text-[#5a4a42]"
+              className={
+                isBusinessTheme
+                  ? 'ml-1 opacity-0 text-[var(--oc-text-secondary)] group-hover:opacity-100 hover:text-[var(--oc-text-title)]'
+                  : 'ml-1 opacity-0 text-[#5a4a42]/40 group-hover:opacity-100 hover:text-[#5a4a42]'
+              }
               role="button"
               tabIndex={-1}
               onKeyDown={() => {}}
             >
-              ×
+              x
             </span>
           </button>
         );
@@ -45,7 +63,11 @@ export function BrowserTabBar({ tabs, activeTabId, onSelect, onClose, onAdd }: B
       <button
         type="button"
         onClick={onAdd}
-        className="px-2 py-1.5 text-[11px] text-[#5a4a42]/40 hover:text-[#5a4a42] hover:bg-[#FDF8F3]/50 transition-colors shrink-0"
+        className={
+          isBusinessTheme
+            ? 'shrink-0 px-2 py-1.5 text-[11px] text-[var(--oc-text-secondary)] transition-colors hover:bg-[var(--oc-bg-surface)] hover:text-[var(--oc-text-title)]'
+            : 'shrink-0 px-2 py-1.5 text-[11px] text-[#5a4a42]/40 transition-colors hover:bg-[#FDF8F3]/50 hover:text-[#5a4a42]'
+        }
         title="New tab"
       >
         +

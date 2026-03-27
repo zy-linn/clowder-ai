@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import React, { useMemo } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { useChatStore } from '@/stores/chatStore';
 
 export type SignalNavItem = 'chat' | 'signals' | 'sources';
@@ -14,11 +15,6 @@ interface ItemConfig {
   readonly label: string;
 }
 
-/**
- * Reads `?from=` URL param to determine the referrer thread.
- * Falls back to store's currentThreadId (last active thread).
- * Same pattern as MissionControlPage referrer-based back button.
- */
 function useReferrerThread(): string | null {
   const storeThreadId = useChatStore((s) => s.currentThreadId);
   return useMemo(() => {
@@ -31,6 +27,8 @@ function useReferrerThread(): string | null {
 }
 
 export function SignalNav({ active }: SignalNavProps) {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
   const referrerThread = useReferrerThread();
   const fromSuffix = referrerThread ? `?from=${encodeURIComponent(referrerThread)}` : '';
 
@@ -45,11 +43,22 @@ export function SignalNav({ active }: SignalNavProps) {
   const backHref = referrerThread && referrerThread !== 'default' ? `/thread/${referrerThread}` : '/';
 
   return (
-    <nav aria-label="Signal navigation" className="flex items-center gap-2">
+    <nav
+      aria-label="Signal navigation"
+      data-testid="signal-nav-shell"
+      className={
+        isBusiness ? 'flex items-center gap-2 text-[var(--oc-text-secondary)]' : 'flex items-center gap-2'
+      }
+    >
       <Link
         href={backHref}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#8B6F47] transition-colors hover:bg-[#F7EEDB]"
-        data-testid="signal-back-to-chat"
+        data-testid="signal-nav-back-link"
+        className={[
+          'inline-flex items-center gap-1.5 rounded-[10px] border px-3 py-1.5 text-xs font-semibold transition-colors',
+          isBusiness
+            ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-heading)] hover:bg-[var(--oc-bg-surface-soft)]'
+            : 'border-[#D8C6AD] bg-[#FCF7EE] text-[#8B6F47] hover:bg-[#F7EEDB]',
+        ].join(' ')}
       >
         <svg
           className="h-4 w-4"
@@ -73,9 +82,13 @@ export function SignalNav({ active }: SignalNavProps) {
             aria-current={isActive ? 'page' : undefined}
             className={[
               'inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-              isActive
-                ? 'border-cocreator-primary bg-cocreator-light text-cocreator-dark'
-                : 'border-gray-200 bg-white text-gray-600 hover:border-cocreator-light hover:text-cocreator-dark',
+              isBusiness
+                ? isActive
+                  ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-title)]'
+                  : 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface)] hover:text-[var(--oc-text-heading)]'
+                : isActive
+                  ? 'border-cocreator-primary bg-cocreator-light text-cocreator-dark'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-cocreator-light hover:text-cocreator-dark',
             ].join(' ')}
           >
             {item.label}

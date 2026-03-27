@@ -99,6 +99,7 @@ export function ChatContainer({ threadId }: ChatContainerProps) {
   const { clearTasks } = useTaskStore();
   const { getCatById } = useCatData();
   const { theme, config } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const workspaceWorktreeId = useChatStore((s) => s.workspaceWorktreeId);
   usePreviewAutoOpen(workspaceWorktreeId);
   useWorkspaceNavigate(workspaceWorktreeId, threadId);
@@ -426,7 +427,19 @@ export function ChatContainer({ threadId }: ChatContainerProps) {
     );
   }
   return (
-    <div ref={containerRef} className="flex h-screen h-dvh">
+    <div
+      ref={containerRef}
+      className="flex h-screen h-dvh"
+      data-testid="chat-shell-root"
+      style={
+        isBusinessTheme
+          ? {
+              backgroundColor: config.shell.pageBgVar,
+              color: 'var(--oc-text-body)',
+            }
+          : undefined
+      }
+    >
       {sidebarOpen && (
         <>
           {/* Backdrop, mobile only */}
@@ -436,10 +449,12 @@ export function ChatContainer({ threadId }: ChatContainerProps) {
             aria-hidden="true"
           />
           <div
+            data-testid="thread-sidebar-shell"
             className="fixed inset-y-0 left-0 z-30 md:static md:z-auto flex-shrink-0"
             style={{
               width: sidebarWidth,
-              backgroundColor: theme === 'business' ? config.sidebar.bg : undefined,
+              backgroundColor: isBusinessTheme ? config.shell.sidebarBgVar : undefined,
+              borderRight: isBusinessTheme ? '1px solid var(--oc-border-default)' : undefined,
             }}
           >
             <ThreadSidebar
@@ -478,7 +493,7 @@ export function ChatContainer({ threadId }: ChatContainerProps) {
           {sidebarMenu !== 'chat' && (
             <div
               className="h-full overflow-hidden px-6 pt-4 pb-3"
-              style={{ backgroundColor: theme === 'business' && config ? config.content.bg : '#FFFFFF' }}
+              style={{ backgroundColor: isBusinessTheme ? config.shell.pageBgVar : '#FFFFFF' }}
             >
               {sidebarMenu === 'models' && <ModelsPanel />}
               {sidebarMenu === 'agents' && <AgentsPanel />}
@@ -493,7 +508,7 @@ export function ChatContainer({ threadId }: ChatContainerProps) {
               className="h-full overflow-y-auto p-4"
               style={{
                 backgroundColor:
-                  threadId === 'default' ? '#FFFFFF' : theme === 'business' && config ? config.content.bg : undefined,
+                  threadId === 'default' ? (isBusinessTheme ? config.shell.cardBgVar : '#FFFFFF') : isBusinessTheme ? config.shell.pageBgVar : undefined,
               }}
               data-chat-container
             >

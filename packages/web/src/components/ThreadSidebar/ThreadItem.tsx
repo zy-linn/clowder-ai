@@ -101,8 +101,7 @@ export function ThreadItem({
   tooltipLines.push(formatRelativeTime(lastActiveAt, false));
   const tooltip = tooltipLines.join('\n');
 
-  const selectedBgColor =
-    isActive && theme === 'business' && config?.sidebar?.selectedItemBg ? config.sidebar.selectedItemBg : undefined;
+  const selectedBgColor = isActive && theme === 'business' ? config.sidebar.selectedItemBgVar : undefined;
 
   return (
     <div

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { apiFetch } from '@/utils/api-client';
 import { BrowserTabBar } from './BrowserTabBar';
 import { BrowserToolbar } from './BrowserToolbar';
@@ -34,6 +35,8 @@ interface PreviewStatus {
  * and isolate cookies/storage from Hub.
  */
 export function BrowserPanel({ initialPort, initialPath }: BrowserPanelProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const [gatewayPort, setGatewayPort] = useState<number>(0);
   const [targetPort, setTargetPort] = useState(initialPort ?? 0);
   const [urlInput, setUrlInput] = useState(
@@ -234,7 +237,10 @@ export function BrowserPanel({ initialPort, initialPath }: BrowserPanelProps) {
   }, [activateView]);
 
   return (
-    <div className="flex flex-col h-full bg-[#FDF8F3]">
+    <div
+      className={`flex h-full flex-col ${isBusinessTheme ? 'bg-[var(--oc-bg-surface)] text-[var(--oc-text-body)]' : 'bg-[#FDF8F3]'}`}
+      data-testid="browser-panel-shell"
+    >
       <BrowserToolbar
         urlInput={urlInput}
         onUrlChange={setUrlInput}
@@ -263,7 +269,15 @@ export function BrowserPanel({ initialPort, initialPath }: BrowserPanelProps) {
 
       {hmrStatus !== 'idle' && (
         <div
-          className={`flex items-center gap-1.5 px-3 py-1 text-[11px] border-b ${hmrStatus === 'connected' ? 'bg-[#FFF5F2] border-[#FFDDD2]' : 'bg-[#FFF0ED] border-[#FFD4CC]'} text-[#5a4a42]/70`}
+          className={`flex items-center gap-1.5 border-b px-3 py-1 text-[11px] ${
+            isBusinessTheme
+              ? hmrStatus === 'connected'
+                ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-secondary)]'
+                : 'border-[#F5C2C7] bg-[#FEF2F2] text-[#B42318]'
+              : hmrStatus === 'connected'
+                ? 'bg-[#FFF5F2] border-[#FFDDD2] text-[#5a4a42]/70'
+                : 'bg-[#FFF0ED] border-[#FFD4CC] text-[#5a4a42]/70'
+          }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full inline-block ${hmrStatus === 'connected' ? 'bg-green-500' : 'bg-red-400'}`}
@@ -273,7 +287,11 @@ export function BrowserPanel({ initialPort, initialPath }: BrowserPanelProps) {
           ) : (
             <span>
               HMR disconnected.{' '}
-              <button type="button" className="underline hover:text-[#E29578]" onClick={handleRefresh}>
+              <button
+                type="button"
+                className={isBusinessTheme ? 'underline hover:text-[var(--oc-text-title)]' : 'underline hover:text-[#E29578]'}
+                onClick={handleRefresh}
+              >
                 Retry
               </button>
             </span>

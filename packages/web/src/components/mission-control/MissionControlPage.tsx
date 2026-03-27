@@ -4,6 +4,7 @@ import type { BacklogItem, CatId, ExternalProject, MissionHubSelfClaimScope, Thr
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ThreadSidebar } from '@/components/ThreadSidebar';
+import { useTheme } from '@/hooks/useTheme';
 import { useChatStore } from '@/stores/chatStore';
 import { useExternalProjectStore } from '@/stores/externalProjectStore';
 import { useMissionControlStore } from '@/stores/missionControlStore';
@@ -67,6 +68,8 @@ async function parseError(response: Response): Promise<string> {
 }
 
 export function MissionControlPage() {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
   const threadSituationRequestSeq = useRef(0);
   const [selfClaimScopes, setSelfClaimScopes] = useState<Record<string, MissionHubSelfClaimScope>>({});
   const [selfClaimPolicyBlocker, setSelfClaimPolicyBlocker] = useState<SelfClaimPolicyBlocker>(null);
@@ -448,17 +451,31 @@ export function MissionControlPage() {
   }, [storeThreadId]);
 
   return (
-    <div className="flex h-screen bg-[#F4EFE7]">
+    <div
+      data-testid="mission-control-shell"
+      className={isBusiness ? 'flex h-screen bg-[var(--oc-bg-page)]' : 'flex h-screen bg-[#F4EFE7]'}
+    >
       <div className="hidden h-full md:block">
         <ThreadSidebar />
       </div>
       <main className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center justify-between border-b border-[#E7DAC7] bg-[#FFFDF8] px-6 py-3">
+        <header
+          data-testid="mission-control-header"
+          className={
+            isBusiness
+              ? 'flex items-center justify-between border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-6 py-4'
+              : 'flex items-center justify-between border-b border-[#E7DAC7] bg-[#FFFDF8] px-6 py-3'
+          }
+        >
           <div className="flex items-center gap-3">
             <Link
               href={referrerThread && referrerThread !== 'default' ? `/thread/${referrerThread}` : '/'}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#8B6F47] transition-colors hover:bg-[#F7EEDB]"
+              className={
+                isBusiness
+                  ? 'inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--oc-text-heading)] transition-colors hover:bg-[var(--oc-bg-surface-soft)]'
+                  : 'inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#8B6F47] transition-colors hover:bg-[#F7EEDB]'
+              }
               data-testid="mc-back-to-chat"
             >
               <svg
@@ -489,7 +506,9 @@ export function MissionControlPage() {
                 <rect x="14" y="14" width="7" height="7" />
                 <rect x="3" y="14" width="7" height="7" />
               </svg>
-              <h1 className="text-lg font-bold text-[#2B2118]">Mission Hub</h1>
+              <h1 className={isBusiness ? 'text-[26px] font-bold text-[var(--oc-text-title)]' : 'text-lg font-bold text-[#2B2118]'}>
+                Mission Hub
+              </h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -497,7 +516,11 @@ export function MissionControlPage() {
               type="button"
               onClick={() => void handleImportFromDocs()}
               disabled={submitting}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#7A6B5A] transition-colors hover:bg-[#F7EEDB] disabled:opacity-40"
+              className={
+                isBusiness
+                  ? 'inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--oc-text-heading)] transition-colors hover:bg-[var(--oc-bg-surface-soft)] disabled:opacity-40'
+                  : 'inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#7A6B5A] transition-colors hover:bg-[#F7EEDB] disabled:opacity-40'
+              }
               data-testid="mc-import-docs"
             >
               导入 Backlog
@@ -505,7 +528,11 @@ export function MissionControlPage() {
             <button
               type="button"
               onClick={() => setShowImportModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#7A6B5A] transition-colors hover:bg-[#F7EEDB]"
+              className={
+                isBusiness
+                  ? 'inline-flex items-center gap-1.5 rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-3 py-1.5 text-xs font-semibold text-[var(--oc-text-heading)] transition-colors hover:bg-[var(--oc-bg-surface-soft)]'
+                  : 'inline-flex items-center gap-1.5 rounded-lg border border-[#D8C6AD] bg-[#FCF7EE] px-3 py-1.5 text-xs font-medium text-[#7A6B5A] transition-colors hover:bg-[#F7EEDB]'
+              }
               data-testid="mc-import-project"
             >
               + 导入项目
@@ -521,14 +548,25 @@ export function MissionControlPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-[#E7DAC7] bg-[#FFFDF8]">
+        <div
+          data-testid="mission-control-tabs"
+          className={
+            isBusiness
+              ? 'flex border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)]'
+              : 'flex border-b border-[#E7DAC7] bg-[#FFFDF8]'
+          }
+        >
           <button
             type="button"
             onClick={() => setActiveTab('features')}
             className={`px-5 py-2.5 text-[13px] font-semibold transition-colors ${
-              activeTab === 'features'
-                ? 'border-b-2 border-[#8B6F47] text-[#8B6F47]'
-                : 'text-[#9A866F] hover:text-[#6B5D4F]'
+              isBusiness
+                ? activeTab === 'features'
+                  ? 'border-b-2 border-[#171717] text-[var(--oc-text-title)]'
+                  : 'text-[var(--oc-text-secondary)] hover:text-[var(--oc-text-heading)]'
+                : activeTab === 'features'
+                  ? 'border-b-2 border-[#8B6F47] text-[#8B6F47]'
+                  : 'text-[#9A866F] hover:text-[#6B5D4F]'
             }`}
             data-testid="mc-tab-features"
           >
@@ -538,9 +576,13 @@ export function MissionControlPage() {
             type="button"
             onClick={() => setActiveTab('dependencies')}
             className={`px-5 py-2.5 text-[13px] font-semibold transition-colors ${
-              activeTab === 'dependencies'
-                ? 'border-b-2 border-[#8B6F47] text-[#8B6F47]'
-                : 'text-[#9A866F] hover:text-[#6B5D4F]'
+              isBusiness
+                ? activeTab === 'dependencies'
+                  ? 'border-b-2 border-[#171717] text-[var(--oc-text-title)]'
+                  : 'text-[var(--oc-text-secondary)] hover:text-[var(--oc-text-heading)]'
+                : activeTab === 'dependencies'
+                  ? 'border-b-2 border-[#8B6F47] text-[#8B6F47]'
+                  : 'text-[#9A866F] hover:text-[#6B5D4F]'
             }`}
             data-testid="mc-tab-dependencies"
           >
@@ -552,9 +594,13 @@ export function MissionControlPage() {
               type="button"
               onClick={() => setActiveTab(p.id)}
               className={`px-5 py-2.5 text-[13px] font-semibold transition-colors ${
-                activeTab === p.id
-                  ? 'border-b-2 border-[#8B6F47] text-[#8B6F47]'
-                  : 'text-[#9A866F] hover:text-[#6B5D4F]'
+                isBusiness
+                  ? activeTab === p.id
+                    ? 'border-b-2 border-[#171717] text-[var(--oc-text-title)]'
+                    : 'text-[var(--oc-text-secondary)] hover:text-[var(--oc-text-heading)]'
+                  : activeTab === p.id
+                    ? 'border-b-2 border-[#8B6F47] text-[#8B6F47]'
+                    : 'text-[#9A866F] hover:text-[#6B5D4F]'
               }`}
             >
               {p.name}
@@ -563,7 +609,13 @@ export function MissionControlPage() {
         </div>
 
         {/* Status summary bar */}
-        <div className="flex items-center gap-5 border-b border-[#E7DAC7] bg-[#FFFDF8] px-6 py-2.5">
+        <div
+          className={
+            isBusiness
+              ? 'flex items-center gap-5 border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-6 py-3'
+              : 'flex items-center gap-5 border-b border-[#E7DAC7] bg-[#FFFDF8] px-6 py-2.5'
+          }
+        >
           <StatusDot color="bg-[#E4A853]" label={`${pendingCount} 待审批`} textColor="text-[#9A7B3D]" />
           <StatusDot color="bg-[#5B9BD5]" label={`${activeCount} 执行中`} textColor="text-[#4A7FB5]" />
           <StatusDot color="bg-[#7CB87C]" label={`${doneCount} 已完成`} textColor="text-[#5A9A5A]" />

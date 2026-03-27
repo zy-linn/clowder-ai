@@ -1,4 +1,5 @@
 import type { CatData } from '@/hooks/useCatData';
+import { useTheme } from '@/hooks/useTheme';
 import type { CatConfig, CoCreatorConfig } from './config-viewer-types';
 
 function safeAvatarSrc(value: string | null | undefined): string | null {
@@ -77,6 +78,8 @@ function formatMentionPreview(patterns: string[], max = 3) {
 }
 
 export function HubCoCreatorOverviewCard({ coCreator, onEdit }: { coCreator: CoCreatorConfig; onEdit?: () => void }) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const primary = coCreator.color?.primary ?? '#D4A76A';
   const secondary = coCreator.color?.secondary ?? '#FFF8F0';
   const avatarSrc = safeAvatarSrc(coCreator.avatar);
@@ -93,14 +96,22 @@ export function HubCoCreatorOverviewCard({ coCreator, onEdit }: { coCreator: CoC
           onEdit();
         }
       }}
-      className="rounded-[20px] px-[18px] py-[18px] shadow-sm"
-      style={{ backgroundColor: secondary, border: `2px solid ${primary}` }}
+      className={
+        isBusinessTheme
+          ? 'rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-5 py-4 shadow-none'
+          : 'rounded-[20px] px-[18px] py-[18px] shadow-sm'
+      }
+      style={isBusinessTheme ? undefined : { backgroundColor: secondary, border: `2px solid ${primary}` }}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div
-            className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-[11px] font-bold text-white"
-            style={{ backgroundColor: primary }}
+            className={
+              isBusinessTheme
+                ? 'flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#171717] text-[11px] font-bold text-white'
+                : 'flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-[11px] font-bold text-white'
+            }
+            style={isBusinessTheme ? undefined : { backgroundColor: primary }}
           >
             {avatarSrc ? (
               // biome-ignore lint/performance/noImgElement: co-creator avatar may be runtime upload URL
@@ -109,9 +120,17 @@ export function HubCoCreatorOverviewCard({ coCreator, onEdit }: { coCreator: CoC
               'ME'
             )}
           </div>
-          <h3 className="text-base font-bold text-[#2D2118]">{coCreator.name}</h3>
+          <h3 className={isBusinessTheme ? 'text-[17px] font-bold text-[var(--oc-text-heading)]' : 'text-base font-bold text-[#2D2118]'}>
+            {coCreator.name}
+          </h3>
         </div>
-        <span className="rounded-full bg-[#FFF3E0] px-2.5 py-1 text-[11px] font-semibold text-[#E65100] flex items-center gap-1">
+        <span
+          className={
+            isBusinessTheme
+              ? 'flex items-center gap-1 rounded-full bg-[rgba(244,77,34,0.1)] px-2.5 py-1 text-[11px] font-semibold text-[#F44D22]'
+              : 'flex items-center gap-1 rounded-full bg-[#FFF3E0] px-2.5 py-1 text-[11px] font-semibold text-[#E65100]'
+          }
+        >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path
               strokeLinecap="round"
@@ -122,10 +141,13 @@ export function HubCoCreatorOverviewCard({ coCreator, onEdit }: { coCreator: CoC
           Owner
         </span>
       </div>
-      <p className="mt-2.5 text-[13px] text-[#8A776B]">
+      <p className={isBusinessTheme ? 'mt-2.5 text-[13px] text-[var(--oc-text-secondary)]' : 'mt-2.5 text-[13px] text-[#8A776B]'}>
         别名: {coCreator.aliases.join(' · ') || '无'} · 只能编辑，不能新增或删除
       </p>
-      <p className="mt-2 text-[13px]" style={{ color: primary }}>
+      <p
+        className={isBusinessTheme ? 'mt-2 text-[13px] text-[var(--oc-accent-link)]' : 'mt-2 text-[13px]'}
+        style={isBusinessTheme ? undefined : { color: primary }}
+      >
         {formatMentionPreview(coCreator.mentionPatterns, 2)}
       </p>
     </section>
@@ -133,14 +155,29 @@ export function HubCoCreatorOverviewCard({ coCreator, onEdit }: { coCreator: CoC
 }
 
 export function HubOverviewToolbar({ onAddMember }: { onAddMember?: () => void }) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   return (
-    <div className="flex items-center justify-between gap-3">
-      <p className="text-[13px] text-[#8F8075]">全部 · 订阅 · API Key · 未启用</p>
+    <div
+      className={
+        isBusinessTheme
+          ? 'flex items-center justify-between gap-3 rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-4 py-3'
+          : 'flex items-center justify-between gap-3'
+      }
+    >
+      <p className={isBusinessTheme ? 'text-[13px] text-[var(--oc-text-secondary)]' : 'text-[13px] text-[#8F8075]'}>
+        全部 · 订阅 · API Key · 未启用
+      </p>
       <button
         type="button"
         onClick={onAddMember}
-        className="rounded-full px-4 py-2 text-sm font-bold text-white"
-        style={{ backgroundColor: '#D49266' }}
+        className={
+          isBusinessTheme
+            ? 'rounded-[10px] bg-[#171717] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#0f172a]'
+            : 'rounded-full px-4 py-2 text-sm font-bold text-white'
+        }
+        style={isBusinessTheme ? undefined : { backgroundColor: '#D49266' }}
+        data-testid="agents-panel-primary-action"
       >
         + 添加成员
       </button>
@@ -161,6 +198,8 @@ export function HubMemberOverviewCard({
   onToggleAvailability?: (cat: CatData) => void;
   togglingAvailability?: boolean;
 }) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const status = getStatusBadge(cat);
   const title = [cat.breedDisplayName ?? cat.displayName, cat.nickname].filter(Boolean).join(' · ');
 
@@ -176,15 +215,31 @@ export function HubMemberOverviewCard({
           onEdit(cat);
         }
       }}
-      className="rounded-[20px] px-[18px] py-[18px] shadow-sm transition hover:shadow-md"
-      style={{ backgroundColor: '#FFFDFC', border: `1px solid ${cat.source === 'runtime' ? '#D9C7EA' : '#F1E7DF'}` }}
+      className={
+        isBusinessTheme
+          ? 'rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-5 py-4 shadow-none transition-colors hover:bg-[var(--oc-bg-surface-soft)]'
+          : 'rounded-[20px] px-[18px] py-[18px] shadow-sm transition hover:shadow-md'
+      }
+      style={
+        isBusinessTheme
+          ? undefined
+          : { backgroundColor: '#FFFDFC', border: `1px solid ${cat.source === 'runtime' ? '#D9C7EA' : '#F1E7DF'}` }
+      }
     >
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-[17px] font-bold text-[#2D2118]">{title}</h3>
+            <h3 className={isBusinessTheme ? 'text-[17px] font-bold text-[var(--oc-text-heading)]' : 'text-[17px] font-bold text-[#2D2118]'}>
+              {title}
+            </h3>
             {cat.source === 'runtime' ? (
-              <span className="rounded-full bg-[#F3E8FF] px-2 py-0.5 text-[11px] font-semibold text-[#9D7BC7]">
+              <span
+                className={
+                  isBusinessTheme
+                    ? 'rounded-full bg-[rgba(141,111,165,0.14)] px-2 py-0.5 text-[11px] font-semibold text-[#8D6FA5]'
+                    : 'rounded-full bg-[#F3E8FF] px-2 py-0.5 text-[11px] font-semibold text-[#9D7BC7]'
+                }
+              >
                 动态创建
               </span>
             ) : null}
@@ -198,15 +253,25 @@ export function HubMemberOverviewCard({
           }}
           disabled={!onToggleAvailability || togglingAvailability}
           aria-pressed={status.enabled}
-          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${status.className} disabled:cursor-default`}
+          className={`rounded-full px-2.5 py-1 text-[11px] font-semibold transition disabled:cursor-default ${
+            isBusinessTheme
+              ? status.enabled
+                ? 'bg-[#ECFDF3] text-[#16A34A]'
+                : 'bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-secondary)]'
+              : status.className
+          }`}
         >
           {togglingAvailability ? '切换中...' : status.label}
         </button>
       </div>
 
-      <p className="mt-2.5 text-[13px] text-[#8A776B]">{getMetaSummary(cat, configCat)}</p>
+      <p className={isBusinessTheme ? 'mt-2.5 text-[13px] text-[var(--oc-text-secondary)]' : 'mt-2.5 text-[13px] text-[#8A776B]'}>
+        {getMetaSummary(cat, configCat)}
+      </p>
 
-      <p className="mt-2 text-[13px] text-[#9D7BC7]">{formatMentionPreview(cat.mentionPatterns)}</p>
+      <p className={isBusinessTheme ? 'mt-2 text-[13px] text-[var(--oc-accent-link)]' : 'mt-2 text-[13px] text-[#9D7BC7]'}>
+        {formatMentionPreview(cat.mentionPatterns)}
+      </p>
     </section>
   );
 }

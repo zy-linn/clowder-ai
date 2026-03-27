@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { apiFetch } from '@/utils/api-client';
 
 const MODEL_TITLE = '\u6a21\u578b';
@@ -95,6 +96,8 @@ function professionalGroupLabel(groupKey: string): string {
 }
 
 export function ModelsPanel() {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const [loading, setLoading] = useState(false);
   const [cards, setCards] = useState<ModelCardData[]>([]);
 
@@ -138,19 +141,39 @@ export function ModelsPanel() {
   }, [cards]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3 bg-[#FFFFFF]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-[34px] font-semibold leading-none text-[#1F2329]">{MODEL_TITLE}</h1>
+    <div
+      className={`flex h-full min-h-0 flex-col ${isBusinessTheme ? 'gap-4 bg-[var(--oc-bg-surface)] text-[var(--oc-text-body)]' : 'gap-3 bg-[#FFFFFF]'}`}
+      data-testid="models-panel-shell"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1.5">
+          <h1
+            className={isBusinessTheme ? 'text-[26px] font-bold leading-none tracking-[-0.02em] text-[var(--oc-text-title)]' : 'text-[34px] font-semibold leading-none text-[#1F2329]'}
+            data-testid="models-panel-title"
+          >
+            {MODEL_TITLE}
+          </h1>
+          {isBusinessTheme && <p className="text-[13px] text-[var(--oc-text-secondary)]">集中管理模型目录、可用系列与摘要信息。</p>}
+        </div>
         <div className="flex flex-col items-end gap-2.5">
           <button
             type="button"
-            className="rounded-[16px] bg-[#101317] px-4 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#262C34]"
+            className={
+              isBusinessTheme
+                ? 'rounded-[10px] bg-[#171717] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#0f172a]'
+                : 'rounded-[16px] bg-[#101317] px-4 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-[#262C34]'
+            }
+            data-testid="models-panel-primary-action"
           >
             {ADD_MODEL}
           </button>
           <button
             type="button"
-            className="hidden inline-flex items-center gap-1.5 text-xs font-medium text-[#8A93A2] transition-colors hover:text-[#5D6674]"
+            className={
+              isBusinessTheme
+                ? 'hidden inline-flex items-center gap-1.5 text-xs font-medium text-[var(--oc-text-secondary)] transition-colors hover:text-[var(--oc-text-title)]'
+                : 'hidden inline-flex items-center gap-1.5 text-xs font-medium text-[#8A93A2] transition-colors hover:text-[#5D6674]'
+            }
           >
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
@@ -161,22 +184,28 @@ export function ModelsPanel() {
         </div>
       </div>
 
-      <div className="h-px w-full bg-[#EEF2F6]" />
+      <div className={isBusinessTheme ? 'h-px w-full bg-[var(--oc-border-default)]' : 'h-px w-full bg-[#EEF2F6]'} />
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {loading && <p className="py-10 text-center text-sm text-[#8A93A2]">{LOADING_TEXT}</p>}
+        {loading && (
+          <p className={isBusinessTheme ? 'py-10 text-center text-sm text-[var(--oc-text-secondary)]' : 'py-10 text-center text-sm text-[#8A93A2]'}>
+            {LOADING_TEXT}
+          </p>
+        )}
 
         {!loading && groupedCards.length === 0 && (
-          <p className="py-10 text-center text-sm text-[#8A93A2]">{EMPTY_TEXT}</p>
+          <p className={isBusinessTheme ? 'py-10 text-center text-sm text-[var(--oc-text-secondary)]' : 'py-10 text-center text-sm text-[#8A93A2]'}>
+            {EMPTY_TEXT}
+          </p>
         )}
 
         {!loading && groupedCards.length > 0 && (
           <div className="space-y-4 pb-2">
             {groupedCards.map((group) => (
               <section key={group.key} className="space-y-3">
-                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-[#3B4452]">
+                <h3 className={isBusinessTheme ? 'flex items-center gap-1.5 text-[15px] font-semibold text-[var(--oc-text-heading)]' : 'flex items-center gap-1.5 text-sm font-semibold text-[#3B4452]'}>
                   <svg
-                    className="h-3.5 w-3.5 text-[#8C96A5]"
+                    className={isBusinessTheme ? 'h-3.5 w-3.5 text-[var(--oc-text-secondary)]' : 'h-3.5 w-3.5 text-[#8C96A5]'}
                     viewBox="0 0 20 20"
                     fill="none"
                     stroke="currentColor"
@@ -192,25 +221,45 @@ export function ModelsPanel() {
                     return (
                       <article
                         key={card.id}
-                        className="rounded-2xl border border-[#E8ECF3] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+                        className={
+                          isBusinessTheme
+                            ? 'rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-4 py-4 shadow-none'
+                            : 'rounded-2xl border border-[#E8ECF3] bg-white px-4 py-4 shadow-[0_1px_2px_rgba(15,23,42,0.04)]'
+                        }
                       >
                         <div className="flex items-start gap-3">
                           <div className="min-w-0">
-                            <h4 className="truncate text-[20px] font-semibold text-[#2D3545]">{card.name}</h4>
+                            <h4 className={isBusinessTheme ? 'truncate text-[17px] font-bold text-[var(--oc-text-heading)]' : 'truncate text-[20px] font-semibold text-[#2D3545]'}>
+                              {card.name}
+                            </h4>
                             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                              <span className="rounded bg-[#F2F5FA] px-1.5 py-0.5 text-[11px] font-medium text-[#7A8392]">
+                              <span
+                                className={
+                                  isBusinessTheme
+                                    ? 'rounded-[8px] bg-[var(--oc-bg-surface-soft)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--oc-text-secondary)]'
+                                    : 'rounded bg-[#F2F5FA] px-1.5 py-0.5 text-[11px] font-medium text-[#7A8392]'
+                                }
+                              >
                                 {card.object}
                               </span>
-                              <span className="rounded bg-[#F2F5FA] px-1.5 py-0.5 text-[11px] font-medium text-[#7A8392]">
+                              <span
+                                className={
+                                  isBusinessTheme
+                                    ? 'rounded-[8px] bg-[var(--oc-bg-surface-soft)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--oc-text-secondary)]'
+                                    : 'rounded bg-[#F2F5FA] px-1.5 py-0.5 text-[11px] font-medium text-[#7A8392]'
+                                }
+                              >
                                 {card.id}
                               </span>
                             </div>
                           </div>
                         </div>
 
-                        <p className="mt-3 text-[13px] leading-6 text-[#7C8697]">{card.description}</p>
+                        <p className={isBusinessTheme ? 'mt-3 text-[13px] leading-6 text-[var(--oc-text-secondary)]' : 'mt-3 text-[13px] leading-6 text-[#7C8697]'}>
+                          {card.description}
+                        </p>
 
-                        <div className="mt-3 flex items-center justify-between text-xs text-[#9AA3B1]">
+                        <div className={isBusinessTheme ? 'mt-3 flex items-center justify-between text-xs text-[var(--oc-text-tertiary)]' : 'mt-3 flex items-center justify-between text-xs text-[#9AA3B1]'}>
                           <span>{card.object}</span>
                           <span>ID: {card.id}</span>
                         </div>

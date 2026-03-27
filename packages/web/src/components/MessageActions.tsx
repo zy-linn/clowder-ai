@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useCallback, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import type { ChatMessage } from '@/stores/chatStore';
 import { useChatStore } from '@/stores/chatStore';
 import { apiFetch } from '@/utils/api-client';
@@ -23,6 +24,8 @@ interface MessageActionsProps {
 }
 
 export function MessageActions({ message, threadId, children }: MessageActionsProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const [dialog, setDialog] = useState<DialogState>({ type: 'none' });
   const removeMessage = useChatStore((s) => s.removeMessage);
   const router = useRouter();
@@ -31,6 +34,12 @@ export function MessageActions({ message, threadId, children }: MessageActionsPr
   const isAssistant = message.type === 'assistant' || (message.type === 'user' && !!message.catId);
   const canAct = (isUser || isAssistant) && !message.isStreaming;
   const toolbarPositionClass = isUser ? 'top-8' : 'top-1';
+  const toolbarClassName = isBusinessTheme
+    ? `absolute ${toolbarPositionClass} right-1 flex gap-0.5 rounded-[10px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] px-1 py-0.5 opacity-0 transition-opacity group-hover:opacity-100`
+    : `absolute ${toolbarPositionClass} right-1 flex gap-0.5 transition-opacity bg-white/90 rounded-lg shadow-sm border border-gray-200 px-1 py-0.5 opacity-0 group-hover:opacity-100`;
+  const actionButtonClassName = isBusinessTheme
+    ? 'rounded p-1 text-[var(--oc-text-secondary)] transition-colors hover:bg-[var(--oc-bg-surface-soft)] hover:text-[var(--oc-text-title)]'
+    : 'p-1 rounded hover:bg-gray-100 text-gray-400 transition-colors';
 
   const handleSoftDelete = useCallback(() => setDialog({ type: 'soft-delete' }), []);
 
@@ -137,12 +146,10 @@ export function MessageActions({ message, threadId, children }: MessageActionsPr
       {children}
 
       {canAct && (
-        <div
-          className={`opacity-0 group-hover:opacity-100 absolute ${toolbarPositionClass} right-1 flex gap-0.5 transition-opacity bg-white/90 rounded-lg shadow-sm border border-gray-200 px-1 py-0.5`}
-        >
+        <div className={toolbarClassName}>
           <button
             onClick={handleSoftDelete}
-            className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-500 transition-colors"
+            className={`${actionButtonClassName} hover:text-red-500`}
             title="删除"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +163,7 @@ export function MessageActions({ message, threadId, children }: MessageActionsPr
           </button>
           <button
             onClick={handleBranchDirect}
-            className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-green-600 transition-colors"
+            className={`${actionButtonClassName} hover:text-green-600`}
             title="从这里分支"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +173,7 @@ export function MessageActions({ message, threadId, children }: MessageActionsPr
           {isUser && (
             <button
               onClick={handleEdit}
-              className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-blue-500 transition-colors"
+              className={`${actionButtonClassName} hover:text-blue-500`}
               title="编辑 (创建分支)"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,7 +188,7 @@ export function MessageActions({ message, threadId, children }: MessageActionsPr
           )}
           <button
             onClick={handleHardDelete}
-            className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-red-600 transition-colors"
+            className={`${actionButtonClassName} hover:text-red-600`}
             title="永久删除"
           >
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { LoadingIcon } from './icons/LoadingIcon';
 import { MicIcon } from './icons/MicIcon';
@@ -53,6 +54,8 @@ export function ChatInputActionButton({
   hasActiveInvocation,
   hasText,
 }: ChatInputActionButtonProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const voice = useVoiceInput();
   const isSendDisabled = Boolean(disabled || sendDisabled);
 
@@ -105,7 +108,7 @@ export function ChatInputActionButton({
       {hasActiveInvocation && !disabled && onStop && (
         <button
           onClick={() => onStop()}
-          className="p-2 rounded-lg bg-red-500/80 text-white hover:bg-red-600 transition-colors"
+          className={`rounded-lg p-2 text-white transition-colors ${isBusinessTheme ? 'bg-[#171717] hover:bg-[#0f172a]' : 'bg-red-500/80 hover:bg-red-600'}`}
           title="停止生成"
           aria-label="Stop generation"
         >
@@ -120,7 +123,7 @@ export function ChatInputActionButton({
         /* Backward compat: when explicitly disabled during active invocation, Stop is the only primary action */
         <button
           onClick={() => onStop()}
-          className="p-3 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors"
+          className={`rounded-xl p-3 text-white transition-colors ${isBusinessTheme ? 'bg-[#171717] hover:bg-[#0f172a]' : 'bg-red-500 hover:bg-red-600'}`}
           title="停止生成"
           aria-label="Stop generation"
         >
@@ -152,7 +155,7 @@ export function ChatInputActionButton({
           <button
             onClick={onQueueSend}
             disabled={isSendDisabled}
-            className="p-3 rounded-xl bg-[#9B7EBD] text-white hover:bg-[#8A6DAC] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className={`rounded-xl p-3 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${isBusinessTheme ? 'bg-[#171717] hover:bg-[#0f172a]' : 'bg-[#9B7EBD] hover:bg-[#8A6DAC]'}`}
             aria-label="排队发送"
             title="排队发送 — 猫猫忙完后处理"
           >
@@ -180,7 +183,7 @@ export function ChatInputActionButton({
         <button
           onClick={onSend}
           disabled={isSendDisabled}
-          className="p-3 rounded-xl bg-cocreator-primary text-white hover:bg-cocreator-dark disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className={`rounded-xl p-3 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${isBusinessTheme ? 'bg-[#171717] hover:bg-[#0f172a]' : 'bg-cocreator-primary hover:bg-cocreator-dark'}`}
           title="发送消息"
           aria-label="Send message"
         >
@@ -190,7 +193,7 @@ export function ChatInputActionButton({
         <button
           onClick={voice.startRecording}
           disabled={disabled}
-          className="p-3 rounded-xl text-gray-400 hover:text-cocreator-primary hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className={`rounded-xl p-3 transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${isBusinessTheme ? 'text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface)] hover:text-[var(--oc-text-title)]' : 'text-gray-400 hover:bg-white hover:text-cocreator-primary'}`}
           aria-label="Start voice input (⌥V)"
           title="语音输入 (⌥V)"
         >

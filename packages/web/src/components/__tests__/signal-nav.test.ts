@@ -3,6 +3,16 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SignalNav } from '@/components/signals/SignalNav';
 
+vi.mock('@/hooks/useTheme', () => ({
+  useTheme: () => ({
+    theme: 'business',
+    config: {},
+    setTheme: vi.fn(),
+    toggleTheme: vi.fn(),
+    isLoaded: true,
+  }),
+}));
+
 vi.mock('next/link', () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) =>
     React.createElement('a', { href, ...rest }, children),
@@ -43,5 +53,11 @@ describe('SignalNav', () => {
     expect(links.map((link) => link.textContent)).toEqual(['返回线程', 'Signals', 'Sources']);
     expect(links[1]?.getAttribute('aria-current')).toBe('page');
     expect(links[0]?.getAttribute('aria-current')).toBeNull();
+
+    const shell = container.querySelector('[data-testid="signal-nav-shell"]');
+    const backLink = container.querySelector('[data-testid="signal-nav-back-link"]');
+
+    expect(shell?.className ?? '').toContain('text-[var(--oc-text-secondary)]');
+    expect(backLink?.className ?? '').toContain('border-[var(--oc-border-default)]');
   });
 });

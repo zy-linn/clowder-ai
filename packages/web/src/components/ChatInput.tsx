@@ -56,6 +56,7 @@ export function ChatInput({
   uploadError = null,
 }: ChatInputProps) {
   const { theme, config } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const { cats } = useCatData();
   const catOptions = useMemo(() => buildCatOptions(cats), [cats]);
   const whisperOptions = useMemo(() => buildWhisperOptions(cats), [cats]);
@@ -528,11 +529,21 @@ export function ChatInput({
     return () => document.removeEventListener('mousedown', handler);
   }, [activeMenu, closeMenus]);
 
-  const footerBgColor = theme === 'business' && config?.footer?.bg ? config.footer.bg : undefined;
+  const footerBgColor = isBusinessTheme ? config?.shell?.cardBgVar ?? config?.footer?.bgVar : undefined;
+  const composerStyle = isBusinessTheme
+    ? {
+        backgroundColor: config.shell.inputBgVar,
+        borderColor: 'var(--oc-border-default)',
+      }
+    : undefined;
+  const composerClassName = isBusinessTheme
+    ? 'mx-4 mb-4 mt-2 flex items-end gap-2 rounded-[18px] border px-4 py-4'
+    : 'flex gap-2 items-end p-4 pt-2';
 
   return (
     <div
-      className="border-t border-cocreator-light bg-cocreator-bg relative safe-area-bottom"
+      data-testid="chat-input-shell"
+      className={`relative safe-area-bottom border-t ${isBusinessTheme ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)]' : 'border-cocreator-light bg-cocreator-bg'}`}
       style={footerBgColor ? { backgroundColor: footerBgColor } : undefined}
     >
       {/* F39: Queue status bar — visible when cat is running */}
@@ -650,7 +661,7 @@ export function ChatInput({
         />
       )}
 
-      <div className="flex gap-2 items-end p-4 pt-2">
+      <div className={composerClassName} style={composerStyle}>
         {/* Mobile: + toggle button */}
         <button
           onClick={() => setMobileToolbar((v) => !v)}
@@ -726,7 +737,9 @@ export function ChatInput({
             className={`w-full resize-none rounded-xl border p-3 text-sm focus:outline-none focus:ring-2 placeholder:text-gray-400 ${
               whisperMode
                 ? 'border-amber-300 bg-amber-50/50 focus:ring-amber-400'
-                : 'border-cocreator-light bg-white focus:ring-cocreator-primary'
+                : isBusinessTheme
+                  ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-body)] focus:ring-[#4F6BFF]'
+                  : 'border-cocreator-light bg-white focus:ring-cocreator-primary'
             }`}
             rows={1}
             disabled={disabled}

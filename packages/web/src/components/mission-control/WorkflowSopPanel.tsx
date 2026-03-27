@@ -2,6 +2,7 @@
 
 import type { CheckStatus, SopStage, WorkflowSop } from '@cat-cafe/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import { apiFetch } from '@/utils/api-client';
 
 interface WorkflowSopPanelProps {
@@ -11,7 +12,7 @@ interface WorkflowSopPanelProps {
 const STAGE_LABELS: Record<SopStage, string> = {
   kickoff: '立项',
   impl: '实现',
-  quality_gate: '自检',
+  quality_gate: '质检',
   review: 'Review',
   merge: '合入',
   completion: '完成',
@@ -26,43 +27,85 @@ const CHECK_LABELS: Record<keyof WorkflowSop['checks'], string> = {
   visionGuardDone: '愿景守护',
 };
 
+function panelClass(isBusiness: boolean): string {
+  return isBusiness
+    ? 'rounded-[20px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] p-4'
+    : 'rounded-2xl border border-[#E7DAC7] bg-[#FFFDF8] p-3';
+}
+
 function CheckBadge({ status }: { status: CheckStatus }) {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
+
   if (status === 'verified') {
     return (
-      <span className="inline-flex items-center gap-0.5 rounded-full bg-[#E8F5E8] px-1.5 py-0.5 text-[10px] font-medium text-[#3A7A3A]">
+      <span
+        className={
+          isBusiness
+            ? 'inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700'
+            : 'inline-flex items-center gap-0.5 rounded-full bg-[#E8F5E8] px-1.5 py-0.5 text-[10px] font-medium text-[#3A7A3A]'
+        }
+      >
         verified
       </span>
     );
   }
+
   if (status === 'attested') {
     return (
-      <span className="inline-flex items-center gap-0.5 rounded-full bg-[#FFF3D6] px-1.5 py-0.5 text-[10px] font-medium text-[#8A6D2B]">
+      <span
+        className={
+          isBusiness
+            ? 'inline-flex items-center gap-0.5 rounded-full bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700'
+            : 'inline-flex items-center gap-0.5 rounded-full bg-[#FFF3D6] px-1.5 py-0.5 text-[10px] font-medium text-[#8A6D2B]'
+        }
+      >
         attested
       </span>
     );
   }
+
   return (
-    <span className="inline-flex items-center gap-0.5 rounded-full bg-[#F0EBE3] px-1.5 py-0.5 text-[10px] font-medium text-[#8B7864]">
+    <span
+      className={
+        isBusiness
+          ? 'inline-flex items-center gap-0.5 rounded-full bg-[var(--oc-bg-surface-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--oc-text-muted)]'
+          : 'inline-flex items-center gap-0.5 rounded-full bg-[#F0EBE3] px-1.5 py-0.5 text-[10px] font-medium text-[#8B7864]'
+      }
+    >
       unknown
     </span>
   );
 }
 
 function StagePills({ current }: { current: SopStage }) {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
   const currentIdx = STAGE_ORDER.indexOf(current);
+
   return (
     <div className="flex flex-wrap gap-1" data-testid="sop-stage-pills">
       {STAGE_ORDER.map((stage, idx) => {
         const isCurrent = stage === current;
         const isPast = idx < currentIdx;
         let className = 'rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors';
-        if (isCurrent) {
+
+        if (isBusiness) {
+          if (isCurrent) {
+            className += ' bg-[#171717] text-white';
+          } else if (isPast) {
+            className += ' bg-[var(--oc-bg-surface-muted)] text-[var(--oc-text-secondary)]';
+          } else {
+            className += ' bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-muted)]';
+          }
+        } else if (isCurrent) {
           className += ' bg-[#8B6F47] text-white';
         } else if (isPast) {
           className += ' bg-[#D4C4A8] text-[#6B5D4F]';
         } else {
           className += ' bg-[#F0EBE3] text-[#A89880]';
         }
+
         return (
           <span key={stage} className={className} data-testid={`sop-stage-${stage}`}>
             {STAGE_LABELS[stage]}
@@ -74,6 +117,8 @@ function StagePills({ current }: { current: SopStage }) {
 }
 
 export function WorkflowSopPanel({ backlogItemId }: WorkflowSopPanelProps) {
+  const { theme } = useTheme();
+  const isBusiness = theme === 'business';
   const [sop, setSop] = useState<WorkflowSop | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -83,17 +128,21 @@ export function WorkflowSopPanel({ backlogItemId }: WorkflowSopPanelProps) {
     const seq = ++requestSeq.current;
     setLoading(true);
     setFetchError(null);
+
     try {
       const response = await apiFetch(`/api/backlog/${encodeURIComponent(itemId)}/workflow-sop`);
       if (seq !== requestSeq.current) return;
+
       if (response.status === 404) {
         setSop(null);
         return;
       }
+
       if (!response.ok) {
         const body = (await response.json().catch(() => ({}))) as { error?: string };
         throw new Error(body.error ?? `Request failed: ${response.status}`);
       }
+
       const data = (await response.json()) as WorkflowSop;
       setSop(data);
     } catch (err) {
@@ -116,23 +165,27 @@ export function WorkflowSopPanel({ backlogItemId }: WorkflowSopPanelProps) {
 
   if (!backlogItemId) {
     return (
-      <section className="rounded-2xl border border-[#E7DAC7] bg-[#FFFDF8] p-3" data-testid="mc-workflow-sop">
-        <p className="text-[11px] text-[#8B7864]">选择一个 backlog 项查看 SOP 状态</p>
+      <section className={panelClass(isBusiness)} data-testid="mc-workflow-sop">
+        <p className={isBusiness ? 'text-[11px] text-[var(--oc-text-secondary)]' : 'text-[11px] text-[#8B7864]'}>
+          选择一个 backlog 项查看 SOP 状态。
+        </p>
       </section>
     );
   }
 
   if (loading) {
     return (
-      <section className="rounded-2xl border border-[#E7DAC7] bg-[#FFFDF8] p-3" data-testid="mc-workflow-sop">
-        <p className="text-[11px] text-[#8B7864]">加载 SOP 告示牌中...</p>
+      <section className={panelClass(isBusiness)} data-testid="mc-workflow-sop">
+        <p className={isBusiness ? 'text-[11px] text-[var(--oc-text-secondary)]' : 'text-[11px] text-[#8B7864]'}>
+          加载 SOP 看板中...
+        </p>
       </section>
     );
   }
 
   if (fetchError) {
     return (
-      <section className="rounded-2xl border border-[#E7DAC7] bg-[#FFFDF8] p-3" data-testid="mc-workflow-sop">
+      <section className={panelClass(isBusiness)} data-testid="mc-workflow-sop">
         <p className="text-[11px] text-red-600">{fetchError}</p>
       </section>
     );
@@ -140,9 +193,15 @@ export function WorkflowSopPanel({ backlogItemId }: WorkflowSopPanelProps) {
 
   if (!sop) {
     return (
-      <section className="rounded-2xl border border-[#E7DAC7] bg-[#FFFDF8] p-3" data-testid="mc-workflow-sop">
-        <p className="rounded-lg border border-dashed border-[#DDCCB5] px-2 py-2 text-[11px] text-[#8B7864]">
-          暂无 SOP 告示牌数据
+      <section className={panelClass(isBusiness)} data-testid="mc-workflow-sop">
+        <p
+          className={
+            isBusiness
+              ? 'rounded-[12px] border border-dashed border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-2.5 py-2 text-[11px] text-[var(--oc-text-secondary)]'
+              : 'rounded-lg border border-dashed border-[#DDCCB5] px-2 py-2 text-[11px] text-[#8B7864]'
+          }
+        >
+          暂无 SOP 看板数据。
         </p>
       </section>
     );
@@ -151,75 +210,104 @@ export function WorkflowSopPanel({ backlogItemId }: WorkflowSopPanelProps) {
   const checkEntries = Object.entries(sop.checks) as [keyof WorkflowSop['checks'], CheckStatus][];
 
   return (
-    <section className="rounded-2xl border border-[#E7DAC7] bg-[#FFFDF8] p-3" data-testid="mc-workflow-sop">
-      {/* Header */}
+    <section className={panelClass(isBusiness)} data-testid="mc-workflow-sop">
       <div className="mb-2">
-        <h2 className="text-sm font-semibold text-[#2C2118]">SOP 告示牌</h2>
-        <p className="text-[10px] text-[#7B6956]">{sop.featureId}</p>
+        <h2 className={isBusiness ? 'text-sm font-semibold text-[var(--oc-text-title)]' : 'text-sm font-semibold text-[#2C2118]'}>
+          SOP 看板
+        </h2>
+        <p className={isBusiness ? 'text-[10px] text-[var(--oc-text-secondary)]' : 'text-[10px] text-[#7B6956]'}>
+          {sop.featureId}
+        </p>
       </div>
 
-      {/* Stage pills */}
       <div className="mb-3">
         <StagePills current={sop.stage} />
       </div>
 
-      {/* Baton holder + next skill */}
-      <div className="mb-3 rounded-xl border border-[#EADFCF] bg-[#FFF9F0] px-2.5 py-2">
-        <p className="text-[11px] text-[#6E5A46]">
+      <div
+        className={
+          isBusiness
+            ? 'mb-3 rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 py-2.5'
+            : 'mb-3 rounded-xl border border-[#EADFCF] bg-[#FFF9F0] px-2.5 py-2'
+        }
+      >
+        <p className={isBusiness ? 'text-[11px] text-[var(--oc-text-secondary)]' : 'text-[11px] text-[#6E5A46]'}>
           接力棒：
-          <span className="font-semibold text-[#4B3A2A]" data-testid="sop-baton-holder">
+          <span
+            className={isBusiness ? 'font-semibold text-[var(--oc-text-title)]' : 'font-semibold text-[#4B3A2A]'}
+            data-testid="sop-baton-holder"
+          >
             {sop.batonHolder}
           </span>
         </p>
         {sop.nextSkill && (
-          <p className="text-[11px] text-[#6E5A46]">
-            下一步 Skill：<span className="font-medium text-[#8B6F47]">{sop.nextSkill}</span>
+          <p className={isBusiness ? 'text-[11px] text-[var(--oc-text-secondary)]' : 'text-[11px] text-[#6E5A46]'}>
+            下一步 Skill：
+            <span className={isBusiness ? 'font-medium text-[var(--oc-text-heading)]' : 'font-medium text-[#8B6F47]'}>
+              {sop.nextSkill}
+            </span>
           </p>
         )}
       </div>
 
-      {/* Resume capsule */}
       <div
-        className="mb-3 rounded-xl border border-[#EADFCF] bg-[#FEFCF7] px-2.5 py-2"
+        className={
+          isBusiness
+            ? 'mb-3 rounded-[16px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 py-2.5'
+            : 'mb-3 rounded-xl border border-[#EADFCF] bg-[#FEFCF7] px-2.5 py-2'
+        }
         data-testid="sop-resume-capsule"
       >
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#9A866F]">Resume Capsule</p>
-        <p className="text-[11px] text-[#4B3A2A]">
-          <span className="font-medium text-[#6E5A46]">Goal：</span>
+        <p className={isBusiness ? 'mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--oc-text-muted)]' : 'mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#9A866F]'}>
+          Resume Capsule
+        </p>
+        <p className={isBusiness ? 'text-[11px] text-[var(--oc-text-body)]' : 'text-[11px] text-[#4B3A2A]'}>
+          <span className={isBusiness ? 'font-medium text-[var(--oc-text-secondary)]' : 'font-medium text-[#6E5A46]'}>
+            Goal：
+          </span>
           {sop.resumeCapsule.goal}
         </p>
         {sop.resumeCapsule.done.length > 0 && (
           <div className="mt-1">
-            <span className="text-[10px] font-medium text-[#6E5A46]">Done：</span>
+            <span className={isBusiness ? 'text-[10px] font-medium text-[var(--oc-text-secondary)]' : 'text-[10px] font-medium text-[#6E5A46]'}>
+              Done：
+            </span>
             <ul className="ml-3 list-disc">
-              {sop.resumeCapsule.done.map((item, i) => (
-                <li key={i} className="text-[11px] text-[#4B3A2A]">
+              {sop.resumeCapsule.done.map((item, index) => (
+                <li
+                  key={index}
+                  className={isBusiness ? 'text-[11px] text-[var(--oc-text-body)]' : 'text-[11px] text-[#4B3A2A]'}
+                >
                   {item}
                 </li>
               ))}
             </ul>
           </div>
         )}
-        <p className="mt-1 text-[11px] text-[#4B3A2A]">
-          <span className="font-medium text-[#6E5A46]">Focus：</span>
+        <p className={isBusiness ? 'mt-1 text-[11px] text-[var(--oc-text-body)]' : 'mt-1 text-[11px] text-[#4B3A2A]'}>
+          <span className={isBusiness ? 'font-medium text-[var(--oc-text-secondary)]' : 'font-medium text-[#6E5A46]'}>
+            Focus：
+          </span>
           {sop.resumeCapsule.currentFocus}
         </p>
       </div>
 
-      {/* Checks */}
       <div className="mb-2 space-y-1" data-testid="sop-checks">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9A866F]">Checks</p>
+        <p className={isBusiness ? 'text-[10px] font-semibold uppercase tracking-wide text-[var(--oc-text-muted)]' : 'text-[10px] font-semibold uppercase tracking-wide text-[#9A866F]'}>
+          Checks
+        </p>
         {checkEntries.map(([key, status]) => (
-          <div key={key} className="flex items-center justify-between">
-            <span className="text-[11px] text-[#6E5A46]">{CHECK_LABELS[key]}</span>
+          <div key={key} className="flex items-center justify-between gap-3">
+            <span className={isBusiness ? 'text-[11px] text-[var(--oc-text-secondary)]' : 'text-[11px] text-[#6E5A46]'}>
+              {CHECK_LABELS[key]}
+            </span>
             <CheckBadge status={status} />
           </div>
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="border-t border-[#F0E8DA] pt-1.5">
-        <p className="text-[10px] text-[#A89880]">
+      <div className={isBusiness ? 'border-t border-[var(--oc-border-default)] pt-2' : 'border-t border-[#F0E8DA] pt-1.5'}>
+        <p className={isBusiness ? 'text-[10px] text-[var(--oc-text-muted)]' : 'text-[10px] text-[#A89880]'}>
           更新于{' '}
           {new Date(sop.updatedAt).toLocaleString('zh-CN', {
             month: '2-digit',

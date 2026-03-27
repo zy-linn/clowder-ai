@@ -16,6 +16,16 @@ import {
 
 const mockApiFetch = vi.hoisted(() => vi.fn());
 
+vi.mock('@/hooks/useTheme', () => ({
+  useTheme: () => ({
+    theme: 'business',
+    config: {},
+    setTheme: vi.fn(),
+    toggleTheme: vi.fn(),
+    isLoaded: true,
+  }),
+}));
+
 vi.mock('@/utils/api-client', () => ({
   apiFetch: (...args: unknown[]) => mockApiFetch(...args),
 }));
@@ -67,6 +77,21 @@ describe('MissionControlPage', () => {
   afterAll(() => {
     delete (globalThis as { React?: typeof React }).React;
     delete (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT;
+  });
+
+  it('renders OfficeClaw shell wrappers in business theme', async () => {
+    await act(async () => {
+      root.render(React.createElement(MissionControlPage));
+    });
+    await flush(act);
+
+    const shell = container.querySelector('[data-testid="mission-control-shell"]');
+    const header = container.querySelector('[data-testid="mission-control-header"]');
+    const tabs = container.querySelector('[data-testid="mission-control-tabs"]');
+
+    expect(shell?.className ?? '').toContain('bg-[var(--oc-bg-page)]');
+    expect(header?.className ?? '').toContain('bg-[var(--oc-bg-surface)]');
+    expect(tabs?.className ?? '').toContain('border-[var(--oc-border-default)]');
   });
 
   it('renders back-to-chat link with href="/"', async () => {

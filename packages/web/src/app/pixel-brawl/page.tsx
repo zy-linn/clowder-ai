@@ -64,6 +64,9 @@ export default function PixelBrawlPage() {
 
   return (
     <div
+      data-testid="pixel-brawl-shell"
+      data-theme="pixel-brawl"
+      data-theme-scope="specialized"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -71,7 +74,7 @@ export default function PixelBrawlPage() {
         alignItems: 'center',
         width: '100vw',
         height: '100vh',
-        backgroundColor: '#000',
+        backgroundColor: 'var(--pb-bg-base)',
         fontFamily: '"Silkscreen", monospace',
       }}
     >
@@ -82,13 +85,13 @@ export default function PixelBrawlPage() {
             flexDirection: 'column',
             alignItems: 'center',
             gap: '24px',
-            color: '#E8DFC7',
+            color: 'var(--pb-text-main)',
           }}
         >
           <h1
             style={{
               fontSize: '24px',
-              color: '#F1E28A',
+              color: 'var(--pb-text-title)',
               margin: 0,
               letterSpacing: '2px',
               fontFamily: '"Press Start 2P", monospace',
@@ -96,16 +99,16 @@ export default function PixelBrawlPage() {
           >
             PIXEL BRAWL
           </h1>
-          <p style={{ fontSize: '12px', color: '#3A4658', margin: 0 }}>OfficeClaw Fighting Demo</p>
+          <p style={{ fontSize: '12px', color: 'var(--pb-text-muted)', margin: 0 }}>OfficeClaw Fighting Demo</p>
           <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
             <button
               type="button"
               onClick={() => startGame('aivai')}
               style={{
                 padding: '12px 24px',
-                backgroundColor: '#1E2430',
-                color: '#00F0FF',
-                border: '2px solid #3A4658',
+                backgroundColor: 'var(--pb-panel-bg)',
+                color: 'var(--pb-accent-cyan)',
+                border: '2px solid var(--pb-border)',
                 fontFamily: '"Silkscreen", monospace',
                 fontSize: '14px',
                 cursor: 'pointer',
@@ -118,9 +121,9 @@ export default function PixelBrawlPage() {
               onClick={() => startGame('pvai')}
               style={{
                 padding: '12px 24px',
-                backgroundColor: '#1E2430',
-                color: '#2FA56E',
-                border: '2px solid #3A4658',
+                backgroundColor: 'var(--pb-panel-bg)',
+                color: 'var(--pb-accent-green)',
+                border: '2px solid var(--pb-border)',
                 fontFamily: '"Silkscreen", monospace',
                 fontSize: '14px',
                 cursor: 'pointer',
@@ -129,7 +132,7 @@ export default function PixelBrawlPage() {
               Player vs AI
             </button>
           </div>
-          <p style={{ fontSize: '10px', color: '#3A4658', margin: 0 }}>
+          <p style={{ fontSize: '10px', color: 'var(--pb-text-muted)', margin: 0 }}>
             Player: A/D move | J attack | K skill | R restart
           </p>
         </div>

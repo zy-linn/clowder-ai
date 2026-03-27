@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import type { CatData } from '@/hooks/useCatData';
 import { useCoCreatorConfig } from '@/hooks/useCoCreatorConfig';
+import { useTheme } from '@/hooks/useTheme';
 import { useTts } from '@/hooks/useTts';
 import { hexToRgba, tintedLight } from '@/lib/color-utils';
 import { getMentionRe, getMentionToCat } from '@/lib/mention-highlight';
@@ -54,6 +55,8 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, getCatById }: ChatMessageProps) {
   const coCreator = useCoCreatorConfig();
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const router = useRouter();
   const { state: ttsState, synthesize: ttsSynthesize, activeMessageId } = useTts();
   const threads = useChatStore((s) => s.threads);
@@ -140,13 +143,21 @@ export function ChatMessage({ message, getCatById }: ChatMessageProps) {
       );
     }
 
-    const toneClass = isTool
-      ? 'text-gray-400 bg-gray-50/50 font-mono text-xs py-1'
-      : isFollowup
-        ? 'text-purple-700 bg-purple-50 border border-purple-200'
-        : isError
-          ? 'text-red-500 bg-red-50 rounded-full'
-          : 'text-blue-700 bg-blue-50';
+    const toneClass = isBusinessTheme
+      ? isTool
+        ? 'border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] py-1 font-mono text-xs text-[var(--oc-text-secondary)]'
+        : isFollowup
+          ? 'border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-body)]'
+          : isError
+            ? 'rounded-full border border-red-200 bg-red-50 text-red-500'
+            : 'border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-body)]'
+      : isTool
+        ? 'text-gray-400 bg-gray-50/50 font-mono text-xs py-1'
+        : isFollowup
+          ? 'text-purple-700 bg-purple-50 border border-purple-200'
+          : isError
+            ? 'text-red-500 bg-red-50 rounded-full'
+            : 'text-blue-700 bg-blue-50';
     return (
       <div data-message-id={message.id} className={`flex justify-center ${isTool ? 'mb-1' : 'mb-3'}`}>
         <div className={`text-sm px-4 py-2 rounded-lg whitespace-pre-wrap text-left max-w-[85%] ${toneClass}`}>
@@ -185,15 +196,19 @@ export function ChatMessage({ message, getCatById }: ChatMessageProps) {
             </span>
           </div>
           <div
-            className={`rounded-2xl rounded-br-sm px-4 py-3 transition-transform hover:-translate-y-0.5 ${
-              isWhisper && !isRevealed ? 'bg-amber-50 text-amber-900 border border-dashed border-amber-300' : ''
-            }`}
+            className={`px-4 py-3 transition-transform hover:-translate-y-0.5 ${
+              isBusinessTheme
+                ? 'rounded-[18px] border border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-body)]'
+                : 'rounded-2xl rounded-br-sm'
+            } ${isWhisper && !isRevealed ? 'border border-dashed border-amber-300 bg-amber-50 text-amber-900' : ''}`}
             style={
               !isWhisper || isRevealed
-                ? {
-                    backgroundColor: coCreatorSecondary,
-                    color: coCreatorPrimary,
-                  }
+                ? isBusinessTheme
+                  ? undefined
+                  : {
+                      backgroundColor: coCreatorSecondary,
+                      color: coCreatorPrimary,
+                    }
                 : undefined
             }
           >
@@ -205,8 +220,12 @@ export function ChatMessage({ message, getCatById }: ChatMessageProps) {
           </div>
         </div>
         <div
-          className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ring-2 flex items-center justify-center text-[11px] font-bold text-white"
-          style={{ backgroundColor: coCreatorPrimary, boxShadow: `0 0 0 2px ${coCreatorSecondary}` }}
+          className={`flex h-8 w-8 flex-shrink-0 items-center justify-center overflow-hidden rounded-full text-[11px] font-bold text-white ${isBusinessTheme ? 'ring-1 ring-[var(--oc-border-default)]' : 'ring-2'}`}
+          style={
+            isBusinessTheme
+              ? { backgroundColor: '#171717' }
+              : { backgroundColor: coCreatorPrimary, boxShadow: `0 0 0 2px ${coCreatorSecondary}` }
+          }
         >
           {coCreator.avatar ? (
             <img
@@ -245,11 +264,14 @@ export function ChatMessage({ message, getCatById }: ChatMessageProps) {
   return (
     <div data-message-id={message.id} className="group flex gap-2 mb-4 items-start">
       {catData && <CatAvatar catId={message.catId!} size={32} status={message.isStreaming ? 'streaming' : undefined} />}
-      <div className="max-w-[85%] md:max-w-[75%] min-w-0">
+      <div className="max-w-[85%] min-w-0 md:max-w-[75%]">
         {catStyle && (
           <div className="mb-1 flex flex-col gap-1 min-w-0">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs font-semibold" style={{ opacity: 0.8 }}>
+              <span
+                className={isBusinessTheme ? 'text-xs font-semibold text-[var(--oc-text-heading)]' : 'text-xs font-semibold'}
+                style={isBusinessTheme ? undefined : { opacity: 0.8 }}
+              >
                 {catStyle.label}
               </span>
               <span className="text-xs text-gray-400">{formatTime(message.timestamp)}</span>
@@ -298,7 +320,11 @@ export function ChatMessage({ message, getCatById }: ChatMessageProps) {
                       e.stopPropagation();
                       router.push(`/thread/${sourceId}`);
                     }}
-                    className="inline-flex items-center gap-1.5 border px-3 py-1 rounded-full bg-[#FDF6ED] border-[#E8DCCF] text-[#8D6E63] hover:bg-[#F5EDE0] transition-colors cursor-pointer w-fit max-w-full"
+                    className={`inline-flex w-fit max-w-full items-center gap-1.5 rounded-full border px-3 py-1 transition-colors cursor-pointer ${
+                      isBusinessTheme
+                        ? 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] text-[var(--oc-text-secondary)] hover:bg-[var(--oc-bg-surface-soft)]'
+                        : 'border-[#E8DCCF] bg-[#FDF6ED] text-[#8D6E63] hover:bg-[#F5EDE0]'
+                    }`}
                     title={sourceId}
                     aria-label={`跳转到来源 thread ${sourceId}`}
                   >
@@ -316,14 +342,23 @@ export function ChatMessage({ message, getCatById }: ChatMessageProps) {
         )}
         <div
           className={`border px-4 py-3 transition-transform hover:-translate-y-0.5 overflow-hidden ${
-            catStyle ? `${catStyle.radius} ${catStyle.font ?? ''}` : 'bg-white border-gray-200 rounded-2xl'
+            catStyle
+              ? `${isBusinessTheme ? 'rounded-[18px]' : catStyle.radius} ${catStyle.font ?? ''}`
+              : isBusinessTheme
+                ? 'rounded-[18px] bg-[var(--oc-bg-surface)] border-[var(--oc-border-default)]'
+                : 'bg-white border-gray-200 rounded-2xl'
           }`}
           style={
             catStyle
-              ? {
-                  backgroundColor: catStyle.bgColor,
-                  borderColor: catStyle.borderColor,
-                }
+              ? isBusinessTheme
+                ? {
+                    backgroundColor: 'var(--oc-bg-surface)',
+                    borderColor: 'var(--oc-border-default)',
+                  }
+                : {
+                    backgroundColor: catStyle.bgColor,
+                    borderColor: catStyle.borderColor,
+                  }
               : undefined
           }
         >

@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useTheme } from '@/hooks/useTheme';
 import type { ThreadState } from '@/stores/chat-types';
 import type { ChatMessage } from '@/stores/chatStore';
 import { CatAvatar } from './CatAvatar';
@@ -18,18 +19,27 @@ interface SplitPaneCellProps {
 }
 
 function MiniMessage({ msg }: { msg: ChatMessage }) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const isUser = msg.type === 'user' && !msg.catId;
+
   return (
     <div className={`flex gap-1.5 ${isUser ? 'justify-end' : ''}`}>
       {!isUser && msg.catId && <CatAvatar catId={msg.catId} size={16} />}
       <p
-        className={`text-xs leading-relaxed truncate max-w-[90%] px-2 py-1 rounded-lg ${
-          isUser ? 'bg-cocreator-bg text-cafe-black' : 'bg-gray-50 text-gray-700'
+        className={`max-w-[90%] truncate rounded-lg px-2 py-1 text-xs leading-relaxed ${
+          isBusinessTheme
+            ? isUser
+              ? 'bg-[var(--oc-bg-surface-soft)] text-[var(--oc-text-body)]'
+              : 'bg-[var(--oc-bg-surface)] text-[var(--oc-text-secondary)]'
+            : isUser
+              ? 'bg-cocreator-bg text-cafe-black'
+              : 'bg-gray-50 text-gray-700'
         } ${msg.isStreaming ? 'opacity-70' : ''}`}
       >
         {msg.content.slice(0, 120)}
         {msg.content.length > 120 ? '...' : ''}
-        {msg.isStreaming && <span className="animate-pulse ml-1">|</span>}
+        {msg.isStreaming && <span className="ml-1 animate-pulse">|</span>}
       </p>
     </div>
   );
@@ -43,6 +53,8 @@ export function SplitPaneCell({
   onSelect,
   onDoubleClick,
 }: SplitPaneCellProps) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
   const catStatus = getCatStatusType(threadState.catStatuses);
   const recentMessages = useMemo(() => threadState.messages.slice(-VISIBLE_MESSAGES), [threadState.messages]);
 
@@ -57,29 +69,43 @@ export function SplitPaneCell({
 
   return (
     <div
-      className={`flex flex-col rounded-lg border-2 transition-colors cursor-pointer overflow-hidden ${
-        isSelected ? 'border-cocreator-primary shadow-sm' : 'border-gray-200 hover:border-gray-300'
+      className={`flex cursor-pointer flex-col overflow-hidden rounded-lg border-2 transition-colors ${
+        isBusinessTheme
+          ? isSelected
+            ? 'border-[#4F6BFF] bg-[var(--oc-bg-surface)] shadow-none'
+            : 'border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] hover:border-[#C7D2FE]'
+          : isSelected
+            ? 'border-cocreator-primary shadow-sm'
+            : 'border-gray-200 hover:border-gray-300'
       }`}
       onClick={() => onSelect(threadId)}
       onDoubleClick={() => onDoubleClick(threadId)}
     >
-      {/* Pane header */}
-      <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border-b border-gray-100 flex-shrink-0">
-        <span className={`text-xs ${statusColor}`}>{catStatus !== 'idle' ? 'ᓚᘏᗢ' : ''}</span>
-        <span className="text-xs font-medium text-gray-700 truncate flex-1">{threadTitle}</span>
-        {threadState.isLoading && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />}
+      <div
+        className={
+          isBusinessTheme
+            ? 'flex flex-shrink-0 items-center gap-1.5 border-b border-[var(--oc-border-default)] bg-[var(--oc-bg-surface-soft)] px-3 py-1.5'
+            : 'flex flex-shrink-0 items-center gap-1.5 border-b border-gray-100 bg-gray-50 px-3 py-1.5'
+        }
+      >
+        <span className={`text-xs ${statusColor}`}>{catStatus !== 'idle' ? '●' : ''}</span>
+        <span className={isBusinessTheme ? 'flex-1 truncate text-xs font-medium text-[var(--oc-text-heading)]' : 'flex-1 truncate text-xs font-medium text-gray-700'}>
+          {threadTitle}
+        </span>
+        {threadState.isLoading && <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />}
         {threadState.unreadCount > 0 && (
-          <span className="text-[9px] bg-amber-500 text-white rounded-full px-1 min-w-[14px] text-center">
+          <span className="min-w-[14px] rounded-full bg-amber-500 px-1 text-center text-[9px] text-white">
             {threadState.unreadCount > 99 ? '99+' : threadState.unreadCount}
           </span>
         )}
       </div>
 
-      {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5 min-h-0">
+      <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-2">
         {recentMessages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <span className="text-xs text-gray-300">无消息</span>
+          <div className="flex h-full items-center justify-center">
+            <span className={isBusinessTheme ? 'text-xs text-[var(--oc-text-tertiary)]' : 'text-xs text-gray-300'}>
+              无消息
+            </span>
           </div>
         ) : (
           recentMessages.map((msg) => <MiniMessage key={msg.id} msg={msg} />)
@@ -89,13 +115,23 @@ export function SplitPaneCell({
   );
 }
 
-/** Empty pane placeholder */
 export function SplitPanePlaceholder({ index }: { index: number }) {
+  const { theme } = useTheme();
+  const isBusinessTheme = theme === 'business';
+
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 transition-colors">
-      <span className="text-2xl text-gray-200 mb-1">+</span>
-      <span className="text-xs text-gray-400">窗格 {index + 1}</span>
-      <span className="text-[10px] text-gray-300 mt-0.5">点击左侧 thread 分配到此处</span>
+    <div
+      className={
+        isBusinessTheme
+          ? 'flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-[var(--oc-border-default)] bg-[var(--oc-bg-surface)] transition-colors'
+          : 'flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 transition-colors'
+      }
+    >
+      <span className={isBusinessTheme ? 'mb-1 text-2xl text-[var(--oc-text-tertiary)]' : 'mb-1 text-2xl text-gray-200'}>+</span>
+      <span className={isBusinessTheme ? 'text-xs text-[var(--oc-text-secondary)]' : 'text-xs text-gray-400'}>窗格 {index + 1}</span>
+      <span className={isBusinessTheme ? 'mt-0.5 text-[10px] text-[var(--oc-text-tertiary)]' : 'mt-0.5 text-[10px] text-gray-300'}>
+        点击左侧对话分配到此处
+      </span>
     </div>
   );
 }
