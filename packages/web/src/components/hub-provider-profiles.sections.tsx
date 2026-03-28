@@ -101,7 +101,7 @@ export function CreateApiKeyProfileSection({
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
-    <div className="p-4">
+    <div>
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -218,14 +218,16 @@ export function CreateApiKeyProfileSection({
               </div>
             </>
           )}
-          <button
-            type="button"
-            onClick={onCreate}
-            disabled={busy || !canCreate}
-            className="rounded bg-[#111418] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2A3038] disabled:opacity-50"
-          >
-            {busy ? '创建中...' : '创建'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={busy || !canCreate}
+              className="rounded-[16px] bg-[#111418] px-5 py-1.5 text-xs font-medium text-white hover:bg-[#2A3038] disabled:opacity-50"
+            >
+              {busy ? '创建中...' : '确定'}
+            </button>
+          </div>
         </div>
       )}
     </div>
@@ -318,14 +320,16 @@ export function CreateAcpModelProfileSection({
             placeholder="API Key"
             className="w-full rounded border border-[#DCE2EB] bg-white px-3 py-2 text-sm placeholder:text-[#A8B0BD]"
           />
-          <button
-            type="button"
-            onClick={onCreate}
-            disabled={busy || !canCreate}
-            className="rounded bg-[#111418] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#2A3038] disabled:opacity-50"
-          >
-            {busy ? '创建中...' : '创建'}
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={busy || !canCreate}
+              className="rounded-[16px] bg-[#111418] px-5 py-1.5 text-xs font-medium text-white hover:bg-[#2A3038] disabled:opacity-50"
+            >
+              {busy ? '创建中...' : '确定'}
+            </button>
+          </div>
         </div>
       ) : null}
     </div>

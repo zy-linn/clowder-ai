@@ -292,11 +292,12 @@ export function ModelsPanel() {
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-base font-semibold text-[#2E3440]">{ADD_MODEL}</h3>
               <button
-                type="button"
                 onClick={() => setShowAddModelModal(false)}
-                className="rounded-lg border border-[#DCE1E8] px-3 py-1.5 text-xs font-medium text-[#5F6775] transition-colors hover:bg-[#F7F8FA]"
+                className="text-gray-400 hover:text-gray-600 text-lg"
+                title="关闭"
+                aria-label="关闭"
               >
-                关闭
+                &times;
               </button>
             </div>
             <ModelsCreateApiKeyAccount />

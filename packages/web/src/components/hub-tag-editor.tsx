@@ -131,12 +131,12 @@ export function TagEditor({
               }
             }}
             placeholder={placeholder}
-            className="min-w-[220px] flex-1 rounded-xl border border-[#E8DCCF] bg-[#F7F3F0] px-3 py-2 text-sm text-[#2D2118] outline-none transition focus:border-[#D49266] focus:ring-2 focus:ring-[#F5D2B8]"
+            className="min-w-[220px] flex-1 rounded-xl border border-[#DCE2EB] px-3 py-2 text-sm outline-none transition focus:border-[#D49266]"
           />
           <button
             type="button"
             onClick={commit}
-            className="rounded-full border border-[#D49266] bg-[#FFF1E3] px-3 py-1.5 text-xs font-medium text-[#9A5A2C]"
+            className="rounded-full border px-3 py-1.5 text-xs font-medium"
           >
             添加
           </button>
