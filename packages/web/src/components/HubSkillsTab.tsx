@@ -175,7 +175,9 @@ function SkillList({
               </div>
             </div>
 
-            <p className={styles.description}>{skill.description || FALLBACK_DESCRIPTION}</p>
+            <p className={styles.description} title={skill.description || FALLBACK_DESCRIPTION}>
+              {skill.description || FALLBACK_DESCRIPTION}
+            </p>
 
             <div className={styles.footer}>
               <div className={styles.source}>
@@ -372,7 +374,7 @@ export function HubSkillsTab() {
           <p className="text-[20px] font-semibold">
             {SILL_SQUARE_LABEL}
             {displayResults ? ` (${displayResults.total})` : ''}
-            {displayResults && displayPagination ? `，${PAGE_LABEL_PREFIX}${displayResults.page}${PAGE_LABEL_SUFFIX}` : ''}
+            {displayResults && displayPagination ? `(${PAGE_LABEL_PREFIX}${displayResults.page}${PAGE_LABEL_SUFFIX})` : ''}
           </p>
           <div className="flex flex-col gap-[var(--space-5)] sm:flex-row sm:items-center">
             <input

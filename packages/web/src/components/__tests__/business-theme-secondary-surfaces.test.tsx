@@ -39,6 +39,7 @@ const sampleCat = {
 } as unknown as CatData;
 
 describe('business theme secondary surfaces', () => {
+  const skillDescription = '这是一个很长的技能描述，用来验证技能卡片在正文被截断时，hover 仍然能看到完整内容。';
   let container: HTMLDivElement;
   let root: Root;
 
@@ -61,7 +62,7 @@ describe('business theme secondary surfaces', () => {
                 id: 'skill-1',
                 slug: 'skill-1',
                 name: 'skill-1',
-                description: 'search helper',
+                description: skillDescription,
                 tags: [],
                 repo: { githubOwner: 'openai', githubRepoName: 'skills' },
                 isInstalled: false,
@@ -148,6 +149,7 @@ describe('business theme secondary surfaces', () => {
     );
     const searchInput = container.querySelector('input[aria-label="搜索 SkillHub 技能"]');
     const firstSkillCard = container.querySelector('article');
+    const firstDescription = container.querySelector('article p');
     expect(
       Boolean(
         plazaHeading &&
@@ -157,6 +159,7 @@ describe('business theme secondary surfaces', () => {
           (searchInput.compareDocumentPosition(firstSkillCard) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
       ),
     ).toBe(true);
+    expect(firstDescription?.getAttribute('title')).toBe(skillDescription);
     const buttons = Array.from(container.querySelectorAll('button'));
     expect(buttons.some((button) => button.textContent?.includes('安装'))).toBe(true);
     expect(buttons.some((button) => button.className.includes('ui-button-secondary'))).toBe(true);

@@ -185,8 +185,11 @@ export function HubCapabilityTab({ hideSkillMountStatus }: { hideSkillMountStatu
 
   return (
     <div className="space-y-4">
+      <p className="text-[20px] font-semibold">
+        已安装
+        ({items.length})
+      </p>
       {error && <p className="ui-status-error rounded-[var(--radius-md)] px-3 py-2 text-sm">{error}</p>}
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <ProjectSelector
@@ -266,8 +269,7 @@ export function HubCapabilityTab({ hideSkillMountStatus }: { hideSkillMountStatu
       )}
 
       <div className="mt-4 border-t border-[var(--border-soft)] pt-4">
-        <div className="flex items-center justify-between text-xs text-[var(--text-muted)]">
-          <span>共 {items.length} 项</span>
+        <div className="flex items-center justify-end text-xs text-[var(--text-muted)]">
           <span className="flex gap-3">
             <span className="flex items-center gap-1.5">
               <StatusDot status="connected" /> {items.filter((item) => item.connectionStatus === 'connected').length} 活跃

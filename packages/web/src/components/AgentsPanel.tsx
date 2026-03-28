@@ -495,7 +495,7 @@ export function AgentsPanel() {
   }, [showTemplateUI]);
 
   return (
-    <div className="ui-page-shell gap-4">
+    <div className="ui-page-shell">
       <div className="ui-page-header">
         <h1 className="ui-page-title">智能体管理</h1>
       </div>
@@ -606,8 +606,8 @@ export function AgentsPanel() {
             </div>
           </aside>
 
-          <section className="flex min-w-0 flex-1 flex-col bg-[var(--surface-panel)] p-3">
-            <div className="mb-2 flex flex-wrap items-center gap-2 border-b border-[var(--border-soft)] pb-2">
+          <section className="flex min-w-0 flex-1 flex-col bg-[var(--surface-panel)] border-l border-[var(--border-soft)]">
+            <div className="mb-2 flex flex-wrap items-center gap-2 border-b border-[var(--border-soft)] p-3">
               {AGENT_TABS.map((tab) => (
                 <button
                   key={tab.id}
@@ -629,7 +629,7 @@ export function AgentsPanel() {
 
             {fetchError ? <p className="ui-status-error mb-2 rounded-[var(--radius-md)] px-3 py-2 text-sm">{fetchError}</p> : null}
 
-            <div className="min-h-0 flex-1 overflow-hidden rounded-[var(--radius-lg)] bg-[var(--surface-panel)] flex flex-col">
+            <div className="min-h-0 flex-1 overflow-hidden rounded-[var(--radius-lg)] bg-[var(--surface-panel)] flex flex-col px-3">
               <div className="flex w-full justify-end gap-2">
                 <button
                   type="button"
